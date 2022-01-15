@@ -3,9 +3,16 @@
 (defvar *frame-counter* 0)
 (defvar *finish-screen* 0)
 
+(defvar *player-texture*)
+(defvar *player-frame* 0)
+(defvar *player-frame-rec*)
+
+(defvar *player-score* 0)
+(defvar *opponent-score* 0)
+
 (defvar +pos-err+ 5)
-(defvar +player-w+ 20)
-(defvar +player-h+ 100)
+(defvar +player-w+ 64)
+(defvar +player-h+ 64)
 (defvar +player-step-x+ 200)
 (defvar +player-step-y+ 150)
 
@@ -19,72 +26,71 @@
 (defvar *player-dir* +1)                ; +1 right; -1 left
 
 (defun init-gameplay-screen ()
-  (setq *frame-counter* 0
-        *finish-screen* 0
-        *player-walking-p* nil
-        *target-x* 0
-        *target-y* 0
-        *player-x* 100
-        *player-y* 100
-        *player-dx* 0
-        *player-dy* 0
-        *player-dir* +1))
+  (let ((player-texture (load-texture (namestring (merge-pathnames "player.png" *assets-path*)))))
+    (setq *frame-counter* 0
+          *finish-screen* 0
+          *player-walking-p* nil
+          *target-x* 0
+          *target-y* 0
+          *player-frame* 0
+          *player-frame-rec* (make-rectangle :x 0.0 :y 0.0
+                                             :width (/ (texture-width player-texture) 4)
+                                             :height (texture-height player-texture))
+          *player-x* 100
+          *player-y* 100
+          *player-dx* 0
+          *player-dy* 0
+          *player-dir* +1
+          *player-texture* player-texture)))
 
 #+nil
 (init-gameplay-screen)
 
 (defun update-gameplay-screen ()
+  (incf *frame-counter*)
+  (when (<= 10 *frame-counter*)
+    (setq *frame-counter* 0)
+    (incf *player-frame*)
+    (when (<= 4 *player-frame*)
+      (setq *player-frame* 0))
+    (setf (rectangle-x *player-frame-rec*) (* *player-frame*
+                                              (texture-width *player-texture*)
+                                              1/4)))
+
   (when (is-key-pressed +key-enter+)
     (setq *finish-screen* 1))
 
-  (when (is-mouse-button-pressed +mouse-left-button+)
-    (let* ((target-x (get-mouse-x))
-           (target-y (get-mouse-y))
-           (dir-x (if (< *player-x* target-x) +1 -1))
-           (dir-y (if (< *player-y* target-y) +1 -1)))
-      (setq *player-walking-p* t
-            *target-x* target-x
-            *target-y* target-y
-            *player-dx* (* dir-x (round (* (get-frame-time) +player-step-x+)))
-            *player-dy* (* dir-y (round (* (get-frame-time) +player-step-y+)))
-            *player-dir* dir-x)))
+  (when (is-key-down +key-right+)
+    (incf *player-x* 3))
 
-  (when (< (abs (- *player-x* *target-x*)) +pos-err+)
-    (setq *player-dx* 0))
+  (when (is-key-down +key-left+)
+    (decf *player-x* 3))
 
-  (when (< (abs (- *player-y* *target-y*)) +pos-err+)
-    (setq *player-dy* 0))
+  (when (is-key-down +key-up+)
+    (decf *player-y* 3))
 
-  (when (or (and (zerop *player-dx*) (zerop *player-dy*))
-            (< *player-x* 0)
-            (< (get-screen-width) *player-x*)
-            (< *player-y* 0)
-            (< (get-screen-height) *player-y*))
-    (setq *player-walking-p* nil))
-
-  (when *player-walking-p*
-    (incf *player-x* *player-dx*)
-    (incf *player-y* *player-dy*)))
+  (when (is-key-down +key-down+)
+    (incf *player-y* 3)))
 
 (defun draw-player ()
-  (let ((x (round (- *player-x* (* +player-w+ 1/2))))
-        (y (round (- *player-y* (* +player-h+ 1/3)))))
-    (draw-rectangle-lines x y +player-w+ +player-h+ +blue+)))
+  (draw-rectangle-lines *player-x* *player-y* +player-w+ +player-h+ +blue+)
+  (draw-texture-rec *player-texture*
+                    *player-frame-rec*
+                    (make-vector2 :x *player-x* :y *player-y*)
+                    +white+))
 
 (defun draw-gameplay-screen ()
   ;; Background
-  (draw-rectangle 0 0 (get-screen-width) (get-screen-height) +purple+)
+  (draw-rectangle 0 0 (get-screen-width) (get-screen-height) +black+)
 
   ;; Player
   (draw-player)
 
   ;; Heads-up display
-  (draw-text "GAMEPLAY SCREEN" 20 10 20 +maroon+)
-  (draw-text (format nil "Player: (~S, ~S)" *player-x* *player-y*) 120 220 20 +maroon+)
-  (draw-text (format nil "Speed: (~S, ~S)" *player-dx* *player-dy*) 120 240 20 +maroon+)
-  (draw-text (format nil "Target: (~S, ~S)" *target-x* *target-y*) 120 260 20 +maroon+))
+  (draw-text (format nil "~S - ~S" *player-score* *opponent-score*) 120 10 20 +raywhite+))
 
-(defun unload-gameplay-screen ())
+(defun unload-gameplay-screen ()
+  (unload-texture *player-texture*))
 
 (defun finish-gameplay-screen ()
   *finish-screen*)

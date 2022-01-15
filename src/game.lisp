@@ -11,6 +11,8 @@
 (defvar *trans-from-screen* nil)
 (defvar *trans-to-screen* nil)
 
+(defvar *assets-path* (asdf:system-relative-pathname :tiebreak #p"assets/"))
+
 (defun init-game ()
   (setq *current-screen* :logo
         *trans-alpha* 0.0
