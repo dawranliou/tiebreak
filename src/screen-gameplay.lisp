@@ -161,13 +161,49 @@
 
   (setf (rectangle-y *player-frame-rec*) (* *player-frame-row* 64)))
 
+(defun draw-court ()
+  ;; Outter bound
+  (let ((p1 (make-vector2 :x 100 :y 350))
+        (p2 (make-vector2 :x 700 :y 350))
+        (p3 (make-vector2 :x 550 :y 100))
+        (p4 (make-vector2 :x 250 :y 100)))
+    (draw-line-v p1 p2 +gray+)
+    (draw-line-v p2 p3 +gray+)
+    (draw-line-v p3 p4 +gray+)
+    (draw-line-v p4 p1 +gray+))
+  ;; Single's line
+  (let ((p1 (make-vector2 :x 150 :y 350))
+        (p2 (make-vector2 :x 650 :y 350))
+        (p3 (make-vector2 :x 525 :y 100))
+        (p4 (make-vector2 :x 275 :y 100)))
+    (draw-line-v p1 p4 +gray+)
+    (draw-line-v p2 p3 +gray+))
+  ;; Net
+  (let ((p1 (make-vector2 :x 150 :y 185))
+        (p2 (make-vector2 :x 650 :y 185))
+        (p3 (make-vector2 :x 650 :y 160))
+        (p4 (make-vector2 :x 150 :y 160)))
+    ;;(draw-line-v p1 p2 +gray+)
+    (draw-line-v p2 p3 +gray+)
+    (draw-line-v p3 p4 +gray+)
+    (draw-line-v p4 p1 +gray+))
+  ;; Service line
+  (let ((p1 (make-vector2 :x 200 :y 250))
+        (p2 (make-vector2 :x 600 :y 250))
+        (p3 (make-vector2 :x 540 :y 130))
+        (p4 (make-vector2 :x 260 :y 130))
+        (p5 (make-vector2 :x 400 :y 250))
+        (p6 (make-vector2 :x 400 :y 130)))
+    (draw-line-v p1 p2 +gray+)
+    (draw-line-v p3 p4 +gray+)
+    (draw-line-v p5 p6 +gray+)))
 
 (defun draw-player ()
   ;;(draw-text (format nil "Global Frame ~S" *frame-counter*) 220 160 20 +raywhite+)
   ;;(draw-text (format nil "Player Frame ~S" *player-frame-counter*) 220 180 20 +raywhite+)
-  (draw-text (format nil "State ~S" *player-state*) 220 200 20 +raywhite+)
-  (draw-text (format nil "Swing ~S" *player-swing-phase*) 220 220 20 +raywhite+)
-  (draw-text (format nil "Frame (~S, ~S)" *player-frame-row* *player-frame-col*) 220 240 20 +raywhite+)
+  ;;(draw-text (format nil "State ~S" *player-state*) 220 200 20 +raywhite+)
+  ;;(draw-text (format nil "Swing ~S" *player-swing-phase*) 220 220 20 +raywhite+)
+  ;;(draw-text (format nil "Frame (~S, ~S)" *player-frame-row* *player-frame-col*) 220 240 20 +raywhite+)
   ;;(draw-rectangle-lines *player-x* *player-y* +player-w+ +player-h+ +blue+)
   (draw-texture-rec *player-texture*
                     *player-frame-rec*
@@ -177,6 +213,9 @@
 (defun draw-gameplay-screen ()
   ;; Background
   (draw-rectangle 0 0 (get-screen-width) (get-screen-height) +black+)
+
+  ;; Court
+  (draw-court)
 
   ;; Player
   (draw-player)
