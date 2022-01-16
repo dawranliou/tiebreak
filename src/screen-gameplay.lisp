@@ -132,7 +132,6 @@
              (setf (rectangle-x *player-frame-rec*) (* *player-frame-col* 64))))
     (:swing (case *player-swing-phase*
               (:enter (progn (setq *player-swing-phase* :unit-turn
-                                     *player-swing-p* t
                                      *player-dx* 0
                                      *player-dy* 0
                                      *player-frame-row* +player-swing-frame-index+
@@ -155,8 +154,7 @@
                                         *player-frame-counter* 0
                                         *player-frame-col* 0
                                         *player-frame-row* 0)
-                                  (setf (rectangle-y *player-frame-rec*) (* *player-frame-row* 64))
-                                  (setq *player-swing-p* nil)))
+                                  (setf (rectangle-y *player-frame-rec*) (* *player-frame-row* 64))))
                                 (setf (rectangle-x *player-frame-rec*) (* *player-frame-col* 64))))
                (:exit
                 (setf (rectangle-y *player-frame-rec*) (* *player-frame-row* 64))
