@@ -27,8 +27,6 @@
 
 (defvar *player-swing-phase*)
 
-(defvar *target-x* 0)
-(defvar *target-y* 0)
 (defvar *player-x* 0)
 (defvar *player-y* 0)
 (defvar *player-dx* 3)
@@ -45,8 +43,6 @@
           *player-swing-phase* nil
           *player-dir* :right
           *player-off-balance* nil
-          *target-x* 0
-          *target-y* 0
           *player-frame-row* 0
           *player-frame-col* 0
           *player-frame-rec* (make-rectangle :x (* 64 *player-frame-col*)
