@@ -22,6 +22,8 @@
 
 (defvar +player-idle-frame-index+ 0)
 (defvar +player-swing-frame-index+ 1)
+(defvar +player-run-right-frame-index+ 2)
+(defvar +player-run-left-frame-index+ 3)
 
 (defvar *player-swing-phase*)
 
@@ -31,18 +33,18 @@
 (defvar *player-y* 0)
 (defvar *player-dx* 3)
 (defvar *player-dy* 3)
-(defvar *player-dir* +1)                ; +1 right; -1 left
+(defvar *player-dir* :right)
+(defvar *player-off-balance* nil)
 
 (defun init-gameplay-screen ()
-  (when *player-texture*
-    (unload-texture *player-texture*)
-    (setq *player-texture* nil))
   (let ((player-texture (load-texture (namestring (merge-pathnames "player.png" *assets-path*)))))
     (setq *frame-counter* 0
           *finish-screen* 0
           *player-frame-counter* 0
           *player-state* :idle
           *player-swing-phase* nil
+          *player-dir* :right
+          *player-off-balance* nil
           *target-x* 0
           *target-y* 0
           *player-frame-row* 0
@@ -74,16 +76,42 @@
     (setq *finish-screen* 1))
 
   (when (is-key-down +key-right+)
+    (setq *player-dir* :right)
+    (if (eq :swing *player-state*)
+        (setq *player-off-balance* t)
+        (setq *player-state* :run
+              *player-frame-row* +player-run-right-frame-index+))
     (incf *player-x* *player-dx*))
 
   (when (is-key-down +key-left+)
+    (setq *player-dir* :left)
+    (if (eq :swing *player-state*)
+        (setq *player-off-balance* t)
+        (setq *player-state* :run
+              *player-frame-row* +player-run-left-frame-index+))
     (decf *player-x* *player-dx*))
 
   (when (is-key-down +key-up+)
+    (if (eq :swing *player-state*)
+        (setq *player-off-balance* t)
+        (setq *player-state* :run
+              *player-frame-row* +player-run-right-frame-index+))
     (decf *player-y* *player-dy*))
 
   (when (is-key-down +key-down+)
+    (if (eq :swing *player-state*)
+        (setq *player-off-balance* t)
+        (setq *player-state* :run
+              *player-frame-row* +player-run-right-frame-index+))
     (incf *player-y* *player-dy*))
+
+  (when (and (eq *player-state* :run)
+             (not (is-key-down +key-right+))
+             (not (is-key-down +key-left+))
+             (not (is-key-down +key-up+))
+             (not (is-key-down +key-down+)))
+    (setq *player-state* :idle
+          *player-frame-row* +player-idle-frame-index+))
 
   (when (is-key-down +key-z+)
     (setq *player-state* :swing
@@ -95,9 +123,13 @@
              (incf *player-frame-col*)
              (when (<= 4 *player-frame-col*)
                (setq *player-frame-col* 0))
-             (setf (rectangle-x *player-frame-rec*) (* *player-frame-col*
-                                                       (texture-width *player-texture*)
-                                                       1/4))))
+             (setf (rectangle-x *player-frame-rec*) (* *player-frame-col* 64))))
+    (:run (when (<= 10 *player-frame-counter*)
+             (setq *player-frame-counter* 0)
+             (incf *player-frame-col*)
+             (when (<= 4 *player-frame-col*)
+               (setq *player-frame-col* 0))
+             (setf (rectangle-x *player-frame-rec*) (* *player-frame-col* 64))))
     (:swing (case *player-swing-phase*
               (:enter (progn (setq *player-swing-phase* :unit-turn
                                      *player-swing-p* t
@@ -131,7 +163,9 @@
                 (setq *player-swing-phase* nil
                       *player-state* :idle
                       *player-dx* 3
-                      *player-dy* 3))))))
+                      *player-dy* 3)))))
+
+  (setf (rectangle-y *player-frame-rec*) (* *player-frame-row* 64)))
 
 
 (defun draw-player ()
@@ -140,7 +174,7 @@
   (draw-text (format nil "State ~S" *player-state*) 220 200 20 +raywhite+)
   (draw-text (format nil "Swing ~S" *player-swing-phase*) 220 220 20 +raywhite+)
   (draw-text (format nil "Frame (~S, ~S)" *player-frame-row* *player-frame-col*) 220 240 20 +raywhite+)
-  (draw-rectangle-lines *player-x* *player-y* +player-w+ +player-h+ +blue+)
+  ;;(draw-rectangle-lines *player-x* *player-y* +player-w+ +player-h+ +blue+)
   (draw-texture-rec *player-texture*
                     *player-frame-rec*
                     (make-vector2 :x *player-x* :y *player-y*)
