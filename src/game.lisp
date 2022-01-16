@@ -98,7 +98,7 @@
       (when *on-transition-p* (draw-transition))))
 
 (defun main ()
-  (with-window (*screen-width* *screen-height* "Demo")
+  (with-window (*screen-width* *screen-height* "Tiebreak!")
     (init-game)
     (init-logo-screen)
     (set-target-fps 60)
