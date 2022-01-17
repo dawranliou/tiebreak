@@ -21,9 +21,10 @@
 (defvar *player-state* :idle)
 
 (defvar +player-idle-frame-index+ 0)
-(defvar +player-swing-frame-index+ 1)
-(defvar +player-run-right-frame-index+ 2)
-(defvar +player-run-left-frame-index+ 3)
+(defvar +player-swing-fh-frame-index+ 1)
+(defvar +player-swing-bh-frame-index+ 2)
+(defvar +player-run-right-frame-index+ 3)
+(defvar +player-run-left-frame-index+ 4)
 
 (defvar *player-swing-phase*)
 
@@ -53,7 +54,6 @@
           *player-y* 330
           *player-dx* 3
           *player-dy* 3
-          *player-dir* +1
           *player-texture* player-texture)))
 
 #+nil
@@ -128,22 +128,24 @@
              (setf (rectangle-x *player-frame-rec*) (* *player-frame-col* 64))))
     (:swing (case *player-swing-phase*
               (:enter (progn (setq *player-swing-phase* :unit-turn
-                                     *player-dx* 1
-                                     *player-dy* 1
-                                     *player-frame-row* +player-swing-frame-index+
-                                     *player-frame-col* 0)
+                                   *player-dx* 0
+                                   *player-dy* 0
+                                   *player-frame-row* (if (eq :right *player-dir*)
+                                                          +player-swing-fh-frame-index+
+                                                          +player-swing-bh-frame-index+)
+                                   *player-frame-col* 0)
                                (setf (rectangle-y *player-frame-rec*) (* *player-frame-row* 64))
                                (setf (rectangle-x *player-frame-rec*) 0)))
                (:unit-turn (when (is-key-up +key-z+)
                                (setq *player-swing-phase* :swing
-                                     *player-dx* 1
-                                     *player-dy* 1
+                                     *player-dx* 0
+                                     *player-dy* 0
                                      *player-frame-col* 1
                                      *player-frame-counter* 0)))
                (:swing (progn (when (<= 8 *player-frame-counter*)
                                 (setq *player-frame-counter* 0
-                                      *player-dx* 1
-                                      *player-dy* 1)
+                                      *player-dx* 0
+                                      *player-dy* 0)
                                 (incf *player-frame-col*)
                                 (when (<= 4 *player-frame-col*)
                                   (setq *player-swing-phase* :exit
