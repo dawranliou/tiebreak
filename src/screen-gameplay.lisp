@@ -199,16 +199,24 @@
     (draw-line-v p5 p6 +gray+)))
 
 (defun draw-player ()
-  ;;(draw-text (format nil "Global Frame ~S" *frame-counter*) 220 160 20 +raywhite+)
-  ;;(draw-text (format nil "Player Frame ~S" *player-frame-counter*) 220 180 20 +raywhite+)
-  ;;(draw-text (format nil "State ~S" *player-state*) 220 200 20 +raywhite+)
-  ;;(draw-text (format nil "Swing ~S" *player-swing-phase*) 220 220 20 +raywhite+)
-  ;;(draw-text (format nil "Frame (~S, ~S)" *player-frame-row* *player-frame-col*) 220 240 20 +raywhite+)
   ;;(draw-rectangle-lines *player-x* *player-y* +player-w+ +player-h+ +blue+)
   (draw-texture-rec *player-texture*
                     *player-frame-rec*
                     (make-vector2 :x *player-x* :y *player-y*)
                     +white+))
+
+(defun draw-heads-up-display ()
+  ;; debugging stuff
+  ;;(draw-text (format nil "Global Frame ~S" *frame-counter*) 220 160 20 +raywhite+)
+  ;;(draw-text (format nil "Player Frame ~S" *player-frame-counter*) 220 180 20 +raywhite+)
+  ;;(draw-text (format nil "State ~S" *player-state*) 220 200 20 +raywhite+)
+  ;;(draw-text (format nil "Swing ~S" *player-swing-phase*) 220 220 20 +raywhite+)
+  ;;(draw-text (format nil "Frame (~S, ~S)" *player-frame-row* *player-frame-col*) 220 240 20 +raywhite+)
+  (draw-text (format nil "(~S, ~S)" *player-x* *player-y*)
+             (- *player-x* 0)
+             (- *player-y* 30) 16 +gray+)
+  ;;(draw-fps 10 10)
+  (draw-text (format nil "~S - ~S" *player-score* *opponent-score*) 375 10 20 +raywhite+))
 
 (defun draw-gameplay-screen ()
   ;; Background
@@ -221,7 +229,7 @@
   (draw-player)
 
   ;; Heads-up display
-  (draw-text (format nil "~S - ~S" *player-score* *opponent-score*) 120 10 20 +raywhite+))
+  (draw-heads-up-display))
 
 (defun unload-gameplay-screen ()
   (unload-texture *player-texture*))
