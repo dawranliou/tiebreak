@@ -71,6 +71,20 @@
   (when (is-key-pressed +key-enter+)
     (setq *finish-screen* 1))
 
+  (when (is-key-down +key-up+)
+    (if (eq :swing *player-state*)
+        (setq *player-off-balance* t)
+        (setq *player-state* :run
+              *player-frame-row* +player-run-right-frame-index+))
+    (decf *player-y* *player-dy*))
+
+  (when (is-key-down +key-down+)
+    (if (eq :swing *player-state*)
+        (setq *player-off-balance* t)
+        (setq *player-state* :run
+              *player-frame-row* +player-run-left-frame-index+))
+    (incf *player-y* *player-dy*))
+
   (when (is-key-down +key-right+)
     (setq *player-dir* :right)
     (if (eq :swing *player-state*)
@@ -86,20 +100,6 @@
         (setq *player-state* :run
               *player-frame-row* +player-run-left-frame-index+))
     (decf *player-x* *player-dx*))
-
-  (when (is-key-down +key-up+)
-    (if (eq :swing *player-state*)
-        (setq *player-off-balance* t)
-        (setq *player-state* :run
-              *player-frame-row* +player-run-right-frame-index+))
-    (decf *player-y* *player-dy*))
-
-  (when (is-key-down +key-down+)
-    (if (eq :swing *player-state*)
-        (setq *player-off-balance* t)
-        (setq *player-state* :run
-              *player-frame-row* +player-run-right-frame-index+))
-    (incf *player-y* *player-dy*))
 
   (when (and (eq *player-state* :run)
              (not (is-key-down +key-right+))
@@ -125,6 +125,7 @@
              (incf *player-frame-col*)
              (when (<= 4 *player-frame-col*)
                (setq *player-frame-col* 0))
+             (setf (rectangle-y *player-frame-rec*) (* *player-frame-row* 64))
              (setf (rectangle-x *player-frame-rec*) (* *player-frame-col* 64))))
     (:swing (case *player-swing-phase*
               (:enter (progn (setq *player-swing-phase* :unit-turn
