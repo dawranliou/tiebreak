@@ -21,6 +21,7 @@
   :pathname "src"
   :components ((:file "package")
                (:file "player")
+               (:file "ball")
                (:file "screen-logo")
                (:file "screen-title")
                (:file "screen-gameplay")

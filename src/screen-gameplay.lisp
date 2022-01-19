@@ -9,9 +9,11 @@
 ;; player instance
 (defvar *player-texture* nil)
 (defvar *p*)
+(defvar *b*)
 
 (defun init-gameplay-screen ()
-  (setf *p* (init-player 600 330)))
+  (setf *p* (init-player 600 330))
+  (setf *b* (init-ball 200 50 1 2)))
 
 (defun update-gameplay-screen ()
   (when (is-key-pressed +key-enter+)
@@ -21,7 +23,15 @@
   (when (<= 60 *frame-counter*)
     (setq *frame-counter* 0))
 
-  (update-player *p*))
+  (update-player *p*)
+  (if (ball-out-of-bound *b*)
+      (let ((init-x (get-random-value 200 600)))
+      (setf *b* (init-ball init-x
+                           100
+                           (* 1
+                              (if (< 400 init-x) -1 +1))
+                           2)))
+      (update-ball *b*)))
 
 (defun draw-court ()
   ;; Outter bound
@@ -83,6 +93,9 @@
     (with-mode-3d (camera)
       ;; Court
       (draw-court)))
+
+  ;; ball
+  (draw-ball *b*)
 
   ;; Player
   (draw-player *p*)
