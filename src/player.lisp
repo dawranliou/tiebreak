@@ -105,12 +105,17 @@
           (dst-rec (if (and (find state '(:load :swing)) face-right-p)
                      (make-rectangle :x (+ 12 x) :y y :width 64 :height 64)
                      (make-rectangle :x x :y y :width 64 :height 64))))
+      #+NIL
+      (draw-rectangle-lines x y 64 64 +green+)
       (draw-texture-pro *player-texture*
                         src-rec
                         dst-rec
                         (make-vector2 :x 0 :y 0)
                         0.0
-                        +green+))))
+                        +green+)
+      ;; hit box
+      (when (find state '(:load :swing))
+        (draw-rectangle-lines (+ x (if face-right-p 50 -10)) y 40 64 +red+)))))
 
 (defun unload-player ()
   (when *player-texture*
