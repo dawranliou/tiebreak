@@ -20,6 +20,7 @@
   :serial t
   :pathname "src"
   :components ((:file "package")
+               (:file "player")
                (:file "screen-logo")
                (:file "screen-title")
                (:file "screen-gameplay")
