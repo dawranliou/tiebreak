@@ -79,40 +79,34 @@
                         (player-frame-counter p) 0))))))
 
 (defun player-frame-rec (row col)
-  (make-rectangle :x (* 64 row) :y (* 64 col) :width 64 :height 64))
+  (make-rectangle :x (* 16 row) :y (* 16 col) :width 16 :height 16))
 
 (defun draw-player (p)
   (let ((x (player-x p))
         (y (player-y p))
         (face-right-p (equal :right (player-dir p)))
         (current-frame (player-frame-counter p)))
-    (case (player-state p)
-      (:idle (draw-texture-rec *player-texture*
-                               (player-frame-rec (floor current-frame 10)
-                                                 +sprite-idle+)
-                               (make-vector2 :x x :y y)
-                               +green+))
-      (:move (draw-texture-rec *player-texture*
-                               (player-frame-rec (floor current-frame 10)
-                                                 (if face-right-p
-                                                     +sprite-run-right+
-                                                     +sprite-run-left+))
-                               (make-vector2 :x x :y y)
-                               +green+))
-      (:load (draw-texture-rec *player-texture*
-                               (player-frame-rec 0
-                                                 (if face-right-p
-                                                     +sprite-fh-swing+
-                                                     +sprite-bh-swing+))
-                               (make-vector2 :x x :y y)
-                               +green+))
-      (:swing (draw-texture-rec *player-texture*
-                                (player-frame-rec (1+ (floor current-frame 10))
-                                                  (if face-right-p
-                                                      +sprite-fh-swing+
-                                                      +sprite-bh-swing+))
-                                (make-vector2 :x x :y y)
-                                +green+)))))
+    (let ((src-rec (case (player-state p)
+                     (:idle (player-frame-rec (floor current-frame 10)
+                                              +sprite-idle+))
+                     (:move (player-frame-rec (floor current-frame 10)
+                                              (if face-right-p
+                                                  +sprite-run-right+
+                                                  +sprite-run-left+)))
+                     (:load (player-frame-rec 0
+                                              (if face-right-p
+                                                  +sprite-fh-swing+
+                                                  +sprite-bh-swing+)))
+                     (:swing (player-frame-rec (1+ (floor current-frame 8))
+                                               (if face-right-p
+                                                   +sprite-fh-swing+
+                                                   +sprite-bh-swing+))))))
+      (draw-texture-pro *player-texture*
+                        src-rec
+                        (make-rectangle :x x :y y :width 64 :height 64)
+                        (make-vector2 :x 0 :y 0)
+                        0.0
+                        +green+))))
 
 (defun unload-player ()
   (when *player-texture*
