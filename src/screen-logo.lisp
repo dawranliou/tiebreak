@@ -56,6 +56,8 @@
                    *finish-screen-p* t)))))))
 
 (defun draw-logo-screen ()
+  (clear-background +raywhite+)
+
   (case *state*
     (0 (unless (zerop (mod (floor *frame-counter* 10) 2))
          (draw-rectangle *logo-position-x* *logo-position-y*

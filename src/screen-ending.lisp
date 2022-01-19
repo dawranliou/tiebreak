@@ -12,9 +12,8 @@
     (setq *finish-screen* 1)))
 
 (defun draw-ending-screen ()
-  (draw-rectangle 0 0 (get-screen-width) (get-screen-height) +blue+)
-  (draw-text "ENDING SCREEN" 20 10 20 +darkblue+)
-  (draw-text "PRESS ENTER or TAP to JUMP to TITLE SCREEN" 120 220 20 +darkblue+))
+  (clear-background +black+)
+  (draw-text "GAME OVER" 120 220 20 +raywhite+))
 
 (defun unload-ending-screen ())
 

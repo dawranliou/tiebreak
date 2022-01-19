@@ -88,7 +88,6 @@
            (transition-to-screen :title)))))
 
     (with-drawing
-      (clear-background +raywhite+)
       (case *current-screen*
         (:logo (draw-logo-screen))
         (:title (draw-title-screen))

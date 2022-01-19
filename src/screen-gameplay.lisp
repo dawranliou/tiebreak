@@ -69,7 +69,7 @@
 
 (defun draw-gameplay-screen ()
   ;; Background
-  (draw-rectangle 0 0 (get-screen-width) (get-screen-height) +black+)
+  (clear-background +black+)
 
   ;; Court
   (draw-court)
