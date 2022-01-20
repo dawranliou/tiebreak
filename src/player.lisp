@@ -81,6 +81,19 @@
 (defun player-frame-rec (row col)
   (make-rectangle :x (* 16 row) :y (* 16 col) :width 16 :height 16))
 
+(defun player-hit-box (p)
+  (let ((x (player-x p))
+        (y (player-y p))
+        (state (player-state p))
+        (face-right-p (equal :right (player-dir p)))
+        (current-frame (player-frame-counter p)))
+    (case state
+      (:load (make-rectangle :x (+ x (if face-right-p 50 -10)) :y y
+                             :width 40 :height 64))
+      (:swing (make-rectangle :x (+ x (if face-right-p 50 -10)) :y y
+                              :width 40 :height 64))
+      (t nil))))
+
 (defun draw-player (p)
   (let ((x (player-x p))
         (y (player-y p))

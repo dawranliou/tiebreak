@@ -8,12 +8,12 @@
 
 ;; player instance
 (defvar *player-texture* nil)
-(defvar *p*)
-(defvar *b*)
+(defvar *p* nil)
+(defvar *b* nil)
 
 (defun init-gameplay-screen ()
   (setf *p* (init-player 600 330))
-  (setf *b* (init-ball 200 50 1 2)))
+  (setf *b* (init-ball 0 0 0.2 0.5)))
 
 (defun update-gameplay-screen ()
   (when (is-key-pressed +key-enter+)
@@ -24,13 +24,16 @@
     (setq *frame-counter* 0))
 
   (update-player *p*)
+
+  (let ((hit-box (player-hit-box *p*))
+        (ball-pt (make-vector2 :x (ball-x *b*) :y (ball-y *b*))))
+    (when (and hit-box
+               (check-collision-point-rec ball-pt hit-box))
+      (ball-hit *b*)))
+
   (if (ball-out-of-bound *b*)
       (let ((init-x (get-random-value 200 600)))
-      (setf *b* (init-ball init-x
-                           100
-                           (* 1
-                              (if (< 400 init-x) -1 +1))
-                           2)))
+        (setf *b* (init-ball 0 0 0.2 0.5)))
       (update-ball *b*)))
 
 (defun draw-court ()
@@ -92,10 +95,9 @@
                                 :type +camera-perspective+)))
     (with-mode-3d (camera)
       ;; Court
-      (draw-court)))
-
-  ;; ball
-  (draw-ball *b*)
+      (draw-court)
+      ;; ball
+      (draw-ball *b*)))
 
   ;; Player
   (draw-player *p*)

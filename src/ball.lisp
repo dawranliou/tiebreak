@@ -1,22 +1,37 @@
 (in-package #:tiebreak)
 
-(defstruct ball
-  x y dx dy)
+(defparameter +g-per-frame+ (/ 32.174 4000))
 
-(defun init-ball (x y dx dy)
-  (make-ball :x x :y y :dx dx :dy dy))
+(defstruct ball
+  x y z dx dy dz hit-p)
+
+(defun init-ball (x z dx dz)
+  (make-ball :x x :z z :y 5
+             :dx dx :dz dz :dy 0
+             :hit-p nil))
 
 (defun update-ball (b)
-  (incf (ball-x b) (ball-dx b))
-  (incf (ball-y b) (ball-dy b)))
+  (with-slots (x y z dx dy dz) b
+    (let ((y-next (+ y dy)))
+      (setf (ball-y b) (abs y-next)
+            (ball-x b) (+ x dx)
+            (ball-z b) (+ z dz)
+            (ball-dy b) (- (* dy (if (< y-next 0) -0.9 1))
+                           +g-per-frame+)))))
 
 (defun draw-ball (b)
-  (draw-circle (ball-x b) (ball-y b) 5.0 +red+))
+  (with-slots (x y z) b
+    (draw-sphere (make-vector3 :x x :y y :z z) 0.5 +red+)))
 
 (defun ball-out-of-bound (b)
-  (let ((x (ball-x b))
-        (y (ball-y b)))
-    (or (< 800 x)
-        (< x 0)
-        (< 450 y)
-        (< y 0))))
+  (with-slots (x y z) b
+    (or (< 50 x)
+        (< x -50)
+        (< 50 z)
+        (< z -50)
+        (< y -10))))
+
+(defun ball-hit (b)
+  (unless (ball-hit-p b)
+    (setf (ball-hit-p b) t
+          (ball-dy b) (* -1 (ball-dy b)))))
