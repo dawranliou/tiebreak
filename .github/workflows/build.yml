@@ -1,0 +1,32 @@
+name: 'CI'
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'master'
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        lisp:
+          - sbcl-bin
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+
+    env:
+      LISP: ${{ matrix.lisp }}
+      OS: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: 40ants/setup-lisp@v2
+        with:
+          asdf-system: cl-info
+      - run: make build
