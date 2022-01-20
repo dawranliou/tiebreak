@@ -5,18 +5,19 @@
 (defparameter +sprite-bh-swing+ 2)
 (defparameter +sprite-run-right+ 3)
 (defparameter +sprite-run-left+ 4)
-(defparameter +dx+ 3)
-(defparameter +dy+ 3)
+(defparameter +dx+ 0.3)
+(defparameter +dz+ 0.2)
 
 (defstruct player
-  x y dir state frame-counter)
+  x z dir state frame-counter)
 
-(defun init-player (x y)
+(defun init-player (x z)
   (unless *player-texture*
-    (setf *player-texture* (load-texture
-                     (namestring (merge-pathnames "player.png" *assets-path*)))))
+    (setf *player-texture*
+          (load-texture
+           (namestring (merge-pathnames "player.png" *assets-path*)))))
   (make-player :x x
-               :y y
+               :z z
                :dir :right
                :state :idle
                :frame-counter 0))
@@ -28,7 +29,7 @@
 (defun update-player (p)
   ;; state + input = new state
   (let* ((current-x (player-x p))
-         (current-y (player-y p))
+         (current-z (player-z p))
          (current-frame (player-frame-counter p))
          (right-key-down (is-key-down +key-right+))
          (left-key-down (is-key-down +key-left+))
@@ -61,10 +62,10 @@
                                                 (+ (if right-key-down 1 0)
                                                    (if left-key-down -1 0)))
                                              current-x)
-                             (player-y p) (+ (* +dy+
+                             (player-z p) (+ (* +dz+
                                                 (+ (if up-key-down -1 0)
                                                    (if down-key-down 1 0)))
-                                             current-y)))
+                                             current-z)))
                (t (setf (player-state p) :idle
                         (player-frame-counter p) 0))))
       (:load (cond
@@ -83,20 +84,20 @@
 
 (defun player-hit-box (p)
   (let ((x (player-x p))
-        (y (player-y p))
+        (z (player-z p))
         (state (player-state p))
         (face-right-p (equal :right (player-dir p)))
         (current-frame (player-frame-counter p)))
     (case state
-      (:load (make-rectangle :x (+ x (if face-right-p 50 -10)) :y y
+      (:load (make-rectangle :x (+ x (if face-right-p 50 -10)) :y z
                              :width 40 :height 64))
-      (:swing (make-rectangle :x (+ x (if face-right-p 50 -10)) :y y
+      (:swing (make-rectangle :x (+ x (if face-right-p 50 -10)) :y z
                               :width 40 :height 64))
       (t nil))))
 
-(defun draw-player (p)
+(defun draw-player (camera p)
   (let ((x (player-x p))
-        (y (player-y p))
+        (z (player-z p))
         (state (player-state p))
         (face-right-p (equal :right (player-dir p)))
         (current-frame (player-frame-counter p)))
@@ -116,19 +117,23 @@
                                                    +sprite-fh-swing+
                                                    +sprite-bh-swing+)))))
           (dst-rec (if (and (find state '(:load :swing)) face-right-p)
-                     (make-rectangle :x (+ 12 x) :y y :width 64 :height 64)
-                     (make-rectangle :x x :y y :width 64 :height 64))))
+                     (make-rectangle :x (+ 12 x) :y z :width 64 :height 64)
+                     (make-rectangle :x x :y z :width 64 :height 64))))
       #+NIL
       (draw-rectangle-lines x y 64 64 +green+)
+      #+nil
       (draw-texture-pro *player-texture*
                         src-rec
                         dst-rec
                         (make-vector2 :x 0 :y 0)
                         0.0
                         +green+)
-      ;; hit box
-      (when (find state '(:load :swing))
-        (draw-rectangle-lines (+ x (if face-right-p 50 -10)) y 40 64 +red+)))))
+      (draw-billboard-rec camera
+                          *player-texture*
+                          src-rec
+                          (make-vector3 :x x :y 0 :z z)
+                          (make-vector2 :x 5.0 :y 5.0)
+                          +green+))))
 
 (defun unload-player ()
   (when *player-texture*

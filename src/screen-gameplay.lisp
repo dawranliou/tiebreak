@@ -12,7 +12,7 @@
 (defvar *b* nil)
 
 (defun init-gameplay-screen ()
-  (setf *p* (init-player 600 330))
+  (setf *p* (init-player 18 40))
   (setf *b* (init-ball 0 0 0.2 0.5)))
 
 (defun update-gameplay-screen ()
@@ -97,10 +97,9 @@
       ;; Court
       (draw-court)
       ;; ball
-      (draw-ball *b*)))
-
-  ;; Player
-  (draw-player *p*)
+      (draw-ball *b*)
+      ;; Player
+      (draw-player camera *p*)))
 
   ;; Heads-up display
   (draw-heads-up-display))
