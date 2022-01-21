@@ -21,7 +21,7 @@
 
 (defun draw-ball (b)
   (with-slots (x y z) b
-    (draw-sphere (make-vector3 :x x :y y :z z) 0.5 +red+)))
+    (draw-sphere (make-vector3 :x x :y y :z z) 1.0 +red+)))
 
 (defun ball-out-of-bound (b)
   (with-slots (x y z) b
@@ -34,4 +34,5 @@
 (defun ball-hit (b)
   (unless (ball-hit-p b)
     (setf (ball-hit-p b) t
-          (ball-dy b) (* -1 (ball-dy b)))))
+          (ball-dx b) (* -1 (ball-dx b))
+          (ball-dz b) (* -1 (ball-dz b)))))

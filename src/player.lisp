@@ -5,8 +5,8 @@
 (defparameter +sprite-bh-swing+ 2)
 (defparameter +sprite-run-right+ 3)
 (defparameter +sprite-run-left+ 4)
-(defparameter +dx+ 0.3)
-(defparameter +dz+ 0.2)
+(defparameter +dx+ 0.4)
+(defparameter +dz+ 0.5)
 
 (defstruct player
   x z dir state frame-counter)
@@ -89,10 +89,8 @@
         (face-right-p (equal :right (player-dir p)))
         (current-frame (player-frame-counter p)))
     (case state
-      (:load (make-rectangle :x (+ x (if face-right-p 50 -10)) :y z
-                             :width 40 :height 64))
-      (:swing (make-rectangle :x (+ x (if face-right-p 50 -10)) :y z
-                              :width 40 :height 64))
+      (:load (list (+ x (if face-right-p 2 -1)) 2 z 4.0))
+      (:swing (list (+ x (if face-right-p 2 -1)) 2 z 5.0))
       (t nil))))
 
 (defun draw-player (camera p)
@@ -128,6 +126,7 @@
                         (make-vector2 :x 0 :y 0)
                         0.0
                         +green+)
+
       (draw-billboard-rec camera
                           *player-texture*
                           src-rec
