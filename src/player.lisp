@@ -89,8 +89,8 @@
         (face-right-p (equal :right (player-dir p)))
         (current-frame (player-frame-counter p)))
     (case state
-      (:load (list (+ x (if face-right-p 2 -1)) 2 z 4.0))
-      (:swing (list (+ x (if face-right-p 2 -1)) 2 z 5.0))
+      (:load (list (+ x (if face-right-p 2 -1)) 2 z 1.0))
+      (:swing (list (+ x (if face-right-p 2 -1)) 2 z 1.5))
       (t nil))))
 
 (defun draw-player (camera p)
