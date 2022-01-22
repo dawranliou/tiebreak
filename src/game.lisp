@@ -14,7 +14,7 @@
 (defvar *assets-path* (asdf:system-relative-pathname :tiebreak #p"assets/"))
 
 (defun init-game ()
-  (setq *current-screen* :logo
+  (setq *current-screen* :title ;;:logo
         *trans-alpha* 0.0
         *on-transition-p* nil
         *trans-fade-out-p* nil

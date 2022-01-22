@@ -99,15 +99,16 @@
       ;; Court
       (draw-court)
       ;; ball
-      (draw-ball *b*)
+      (draw-ball-3d *b*)
       ;; Player
       ;; hit-box debug
-      #+nil
+      ;;#+nil
       (let ((hit-box (player-hit-box *p*)))
         (when hit-box
           (destructuring-bind (x y z r) hit-box
             (draw-sphere-wires (make-vector3 :x x :y y :z z) r 10 10 +gray+))))
-      (draw-player camera *p*)))
+      (draw-player-3d camera *p*)
+      #+nil(draw-grid 20 10.0)))
 
   ;; Heads-up display
   (draw-heads-up-display))

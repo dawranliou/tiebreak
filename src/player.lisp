@@ -93,7 +93,7 @@
       (:swing (list (+ x (if face-right-p 2 -1)) 2 z 1.5))
       (t nil))))
 
-(defun draw-player (camera p)
+(defun draw-player-3d (camera p)
   (let ((x (player-x p))
         (z (player-z p))
         (state (player-state p))
@@ -127,10 +127,15 @@
                         0.0
                         +green+)
 
+      (draw-circle-3d (make-vector3 :x x :y 0 :z z)
+                    4.0
+                    (make-vector3 :x 1.0 :y 0.0 :z 0.0)
+                    90.0
+                    +blue+)
       (draw-billboard-rec camera
                           *player-texture*
                           src-rec
-                          (make-vector3 :x x :y 0 :z z)
+                          (make-vector3 :x x :y 2.5 :z z)
                           (make-vector2 :x 5.0 :y 5.0)
                           +green+))))
 
