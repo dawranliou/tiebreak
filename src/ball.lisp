@@ -8,7 +8,7 @@
 
 (defun init-ball (x z dx dz)
   (make-ball :x x :z z :y 5
-             :dx dx :dz dz :dy 0.0z
+             :dx dx :dz dz :dy 0.0
              :hit-p nil))
 
 (defun update-ball (b)
@@ -22,7 +22,7 @@
 
 (defun draw-ball-3d (b)
   (with-slots (x y z) b
-    (draw-circle-3d (make-vector3 :x (floor x) :y 0 :z (floor z))
+    (draw-circle-3d (make-vector3 :x x :y 0 :z z)
                     (+ y 1.0)
                     (make-vector3 :x 1.0 :y 0.0 :z 0.0)
                     90.0
