@@ -18,7 +18,6 @@
 
   :depends-on (:cl-raylib)
   :serial t
-  :pathname "src"
   :components ((:file "package")
                (:file "player")
                (:file "ball")
