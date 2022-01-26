@@ -1,6 +1,6 @@
 (in-package #:tiebreak)
 
-(defvar *current-screen* :logo)
+(defvar *current-screen* nil)
 
 (defparameter *screen-width* 800)
 (defparameter *screen-height* 450)
@@ -14,7 +14,7 @@
 (defvar *assets-path* #p"assets/")
 
 (defun init-game ()
-  (setq *current-screen* :title ;;:logo
+  (setq *current-screen* :title
         *trans-alpha* 0.0
         *on-transition-p* nil
         *trans-fade-out-p* nil
@@ -36,12 +36,10 @@
         (when (< 1.01 *trans-alpha*)
           (setq *trans-alpha* 1.0)
           (case *trans-from-screen*
-            (:logo (unload-logo-screen))
             (:title (unload-title-screen))
             (:gameplay (unload-gameplay-screen))
             (:ending (unload-ending-screen)))
           (case *trans-to-screen*
-            (:logo (init-logo-screen))
             (:title (init-title-screen))
             (:gameplay (init-gameplay-screen))
             (:ending (init-ending-screen)))
@@ -68,10 +66,6 @@
   (if *on-transition-p*
       (update-transition)
       (case *current-screen*
-        (:logo
-         (update-logo-screen)
-         (when (finish-logo-screen-p)
-           (transition-to-screen :title)))
         (:title
          (update-title-screen)
          (when (= (finish-title-screen) 1)
@@ -89,7 +83,6 @@
 
     (with-drawing
       (case *current-screen*
-        (:logo (draw-logo-screen))
         (:title (draw-title-screen))
         (:gameplay (draw-gameplay-screen))
         (:ending (draw-ending-screen)))
@@ -99,7 +92,7 @@
 (defun main ()
   (with-window (*screen-width* *screen-height* "Tiebreak!")
     (init-game)
-    (init-logo-screen)
+    (init-title-screen)
     (set-target-fps 60)
 
     ;; Main game loop
@@ -108,7 +101,6 @@
       (update-draw-frame))
 
     (case *current-screen*
-      (:logo (unload-logo-screen))
       (:title (unload-title-screen))
       (:gameplay (unload-gameplay-screen))
       (:ending (unload-ending-screen)))))
