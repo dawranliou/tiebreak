@@ -39,45 +39,9 @@
       (update-ball *b*)))
 
 (defun draw-court ()
-  ;; Outter bound
-  (let ((p1 (make-vector3 :y 0 :x -36/2 :z -39))
-        (p2 (make-vector3 :y 0 :x 36/2 :z -39))
-        (p3 (make-vector3 :y 0 :x 36/2 :z 39))
-        (p4 (make-vector3 :y 0 :x -36/2 :z 39)))
-    (draw-line-3d p1 p2 +gray+)
-    (draw-line-3d p2 p3 +gray+)
-    (draw-line-3d p3 p4 +gray+)
-    (draw-line-3d p4 p1 +gray+))
-  ;; Single's line
-  (let ((p1 (make-vector3 :y 0 :x -27/2 :z -39))
-        (p2 (make-vector3 :y 0 :x 27/2 :z -39))
-        (p3 (make-vector3 :y 0 :x 27/2 :z 39))
-        (p4 (make-vector3 :y 0 :x -27/2 :z 39)))
-    (draw-line-3d p1 p4 +gray+)
-    (draw-line-3d p2 p3 +gray+))
-  ;; Net
-  #+nil
-  (draw-plane (make-vector3 :x 0 :z 0 :y 7/4)
-              (make-vector2 :x 40 :z 3.5)
-              +gray+)
-  (let ((p1 (make-vector3 :y 0 :x -20 :z 0))
-        (p2 (make-vector3 :y 0 :x 20 :z 0))
-        (p3 (make-vector3 :y 3.5 :x 20 :z 0))
-        (p4 (make-vector3 :y 3.5 :x -20 :z 0)))
-    ;;(draw-line-3d p1 p2 +gray+)
-    (draw-line-3d p2 p3 +gray+)
-    (draw-line-3d p3 p4 +gray+)
-    (draw-line-3d p4 p1 +gray+))
-  ;; Service line
-  (let ((p1 (make-vector3 :y 0 :x -27/2 :z -21))
-        (p2 (make-vector3 :y 0 :x 27/2 :z -21))
-        (p3 (make-vector3 :y 0 :x 27/2 :z 21))
-        (p4 (make-vector3 :y 0 :x -27/2 :z 21))
-        (p5 (make-vector3 :y 0 :x 0 :z -21))
-        (p6 (make-vector3 :y 0 :x 0 :z 21)))
-    (draw-line-3d p1 p2 +gray+)
-    (draw-line-3d p3 p4 +gray+)
-    (draw-line-3d p5 p6 +gray+)))
+  (draw-plane (make-vector3 :x 0 :y -0.1 :z 20)
+              (make-vector2 :x 60 :y 40)
+              +darkgray+))
 
 (defun draw-heads-up-display ()
   (draw-fps 10 10)
@@ -87,28 +51,22 @@
   ;; Background
   (clear-background +black+)
 
-  (let* ((camera-pos (make-vector3 :x 0 :y 30 :z 100))
-         (camera-target (make-vector3 :x 0.0 :y 0.0 :z 15.0))
-         (camera-up (make-vector3 :x 0.0 :y 1.0 :z 0))
-         (camera (make-camera3d :position camera-pos
-                                :target camera-target
-                                :up camera-up
-                                :fovy 20.0
-                                :type +camera-perspective+)))
-    (with-mode-3d (camera)
-      ;; Court
-      (draw-court)
-      ;; ball
-      (draw-ball-3d *b*)
-      ;; Player
-      ;; hit-box debug
-      ;;#+nil
-      (let ((hit-box (player-hit-box *p*)))
-        (when hit-box
-          (destructuring-bind (x y z r) hit-box
-            (draw-sphere-wires (make-vector3 :x x :y y :z z) r 10 10 +gray+))))
-      (draw-player-3d camera *p*)
-      #+nil(draw-grid 20 10.0)))
+  (with-slots (x z) *p*
+    (let* ((camera-pos (make-vector3 :x x :y 50 :z 100))
+           (camera-target (make-vector3 :x x :y 0 :z 0))
+           (camera-up (make-vector3 :x 0.0 :y 1.0 :z 0))
+           (camera (make-camera3d :position camera-pos
+                                  :target camera-target
+                                  :up camera-up
+                                  :fovy 30.0
+                                  :type +camera-perspective+)))
+      (with-mode-3d (camera)
+        ;; Court
+        (draw-court)
+        ;; ball
+        (draw-ball-3d *b*)
+        ;; Player
+        (draw-player-3d camera *p*))))
 
   ;; Heads-up display
   (draw-heads-up-display))

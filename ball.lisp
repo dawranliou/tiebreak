@@ -1,7 +1,7 @@
 (in-package #:tiebreak)
 
-(defparameter +g-per-frame+ (/ 32.174 4000))
-(defparameter +ball-r+ 0.5)
+(defparameter +g-per-frame+ 0.005)
+(defparameter +ball-r+ 1.0)
 
 (defstruct ball
   x y z dx dy dz hit-p)

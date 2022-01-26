@@ -117,16 +117,6 @@
           (dst-rec (if (and (find state '(:load :swing)) face-right-p)
                      (make-rectangle :x (+ 12 x) :y z :width 64 :height 64)
                      (make-rectangle :x x :y z :width 64 :height 64))))
-      #+NIL
-      (draw-rectangle-lines x y 64 64 +green+)
-      #+nil
-      (draw-texture-pro *player-texture*
-                        src-rec
-                        dst-rec
-                        (make-vector2 :x 0 :y 0)
-                        0.0
-                        +green+)
-
       (draw-circle-3d (make-vector3 :x x :y 0 :z z)
                     4.0
                     (make-vector3 :x 1.0 :y 0.0 :z 0.0)
@@ -135,8 +125,8 @@
       (draw-billboard-rec camera
                           *player-texture*
                           src-rec
-                          (make-vector3 :x x :y 2.5 :z z)
-                          (make-vector2 :x 5.0 :y 5.0)
+                          (make-vector3 :x x :y 4 :z z)
+                          (make-vector2 :x 8 :y 8.0)
                           +green+))))
 
 (defun unload-player ()
