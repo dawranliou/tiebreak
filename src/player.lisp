@@ -86,8 +86,6 @@
                   (setf *player-state* :idle
                         *player-frame-counter* 0))))))
 
-(defun player-frame-rec (row col)
-  (make-rectangle :x (* 16 row) :y (* 16 col) :width 16 :height 16))
 
 (defun player-hit-box (p)
   (let ((x (loc/x p))
@@ -98,29 +96,21 @@
       (:swing (list (+ x (if face-right-p 2 -1)) 2 z 1.5))
       (t nil))))
 
-(defun draw-player-3d (camera p)
-  (let ((x (loc/x p))
-        (z (loc/z p))
-        (face-right-p (equal :right *player-dir*))
+(defun update-player-animation (p)
+  (let ((face-right-p (equal :right *player-dir*))
         (current-frame *player-frame-counter*))
-    (let ((src-rec (case *player-state*
-                     (:idle (player-frame-rec (floor current-frame 10)
-                                              +sprite-idle+))
-                     (:move (player-frame-rec (floor current-frame 10)
-                                              (if face-right-p
-                                                  +sprite-run-right+
-                                                  +sprite-run-left+)))
-                     (:load (player-frame-rec 0
-                                              (if face-right-p
-                                                  +sprite-fh-swing+
-                                                  +sprite-bh-swing+)))
-                     (:swing (player-frame-rec (1+ (floor current-frame 8))
-                                               (if face-right-p
-                                                   +sprite-fh-swing+
-                                                   +sprite-bh-swing+))))))
-      (draw-billboard-rec camera
-                          *player-texture*
-                          src-rec
-                          (make-vector3 :x x :y 4 :z z)
-                          (make-vector2 :x 8 :y 8.0)
-                          +green+))))
+    (case *player-state*
+      (:idle (setf (sprite/row p) +sprite-idle+
+                   (sprite/col p) (floor current-frame 10)))
+      (:move (setf (sprite/row p) (if face-right-p
+                                      +sprite-run-right+
+                                      +sprite-run-left+)
+                   (sprite/col p) (floor current-frame 10)))
+      (:load (setf (sprite/row p) (if face-right-p
+                                      +sprite-fh-swing+
+                                      +sprite-bh-swing+)
+                   (sprite/col p) 0))
+      (:swing (setf (sprite/row p) (if face-right-p
+                                       +sprite-fh-swing+
+                                       +sprite-bh-swing+)
+                    (sprite/col p) (1+ (floor current-frame 8)))))))

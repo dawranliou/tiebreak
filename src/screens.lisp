@@ -68,6 +68,7 @@
     (setq *frame-counter* 0))
 
   (update-player *p*)
+  (update-player-animation *p*)
 
   (let ((hit-box (player-hit-box *p*)))
     (when hit-box
