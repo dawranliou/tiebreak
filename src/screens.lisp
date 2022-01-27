@@ -13,6 +13,7 @@
 
 (defvar *frame-counter* 0)
 (defvar *finish-screen* nil)
+(defvar *camera* nil)
 
 
 (defgeneric init-screen (screen))
@@ -96,28 +97,29 @@
   (clear-background +black+)
 
   (with-slots (loc/x loc/z) *p*
-    (let* ((camera-pos (make-vector3 :x loc/x :y 50 :z 100))
-           (camera-target (make-vector3 :x loc/x :y 0 :z 0))
-           (camera-up (make-vector3 :x 0.0 :y 1.0 :z 0))
-           (camera (make-camera3d :position camera-pos
-                                  :target camera-target
-                                  :up camera-up
-                                  :fovy 30.0
-                                  :type +camera-perspective+)))
-      (with-mode-3d (camera)
+    (let ((camera-pos (make-vector3 :x loc/x :y 50 :z 100))
+          (camera-target (make-vector3 :x loc/x :y 0 :z 0))
+          (camera-up (make-vector3 :x 0.0 :y 1.0 :z 0)))
+      (setf *camera* (make-camera3d :position camera-pos
+                                    :target camera-target
+                                    :up camera-up
+                                    :fovy 30.0
+                                    :type +camera-perspective+))
+      (with-mode-3d (*camera*)
         ;; Court
         (draw-court)
         ;; ball
         (draw-ball-3d *b*)
         ;; Player
-        (draw-player-3d camera *p*)
+        (run-draw-sprite)
+
         (run-draw-projection))))
 
   ;; Heads-up display
   (draw-heads-up-display))
 
 (defmethod unload-screen ((screen (eql :gameplay)))
-  (destroy-entity *b*)
+  (clear-entities)
   (when *player-texture*
     (unload-texture *player-texture*)
     (setf *player-texture* nil)))

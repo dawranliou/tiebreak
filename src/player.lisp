@@ -12,7 +12,7 @@
 (defvar *player-frame-counter* 0)
 
 
-(define-entity player (loc velocity projection sprite))
+(define-entity player (loc velocity projection sprite size))
 
 
 (defun init-player (x z)
@@ -23,11 +23,15 @@
                  :velocity/x +player-speed+
                  :velocity/z +player-speed+
                  :projection/color +blue+
-                 :projection/r 2.0))
+                 :projection/r 2.0
+                 :sprite/w 16
+                 :sprite/h 16
+                 :sprite/row 0
+                 :sprite/col 1
+                 :sprite/texture *player-texture*
+                 :size/w 8.0
+                 :size/h 8.0))
 
-(defun player-into-state (p new-state)
-  (setf *player-state* new-state
-        *player-frame-counter* 0))
 
 (defun update-player (p)
   ;; state + input = new state
