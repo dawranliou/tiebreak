@@ -18,11 +18,15 @@
 
   :depends-on (:cl-raylib)
   :serial t
-  :components ((:file "package")
-               (:file "player")
-               (:file "ball")
-               (:file "screen-logo")
-               (:file "screen-title")
-               (:file "screen-gameplay")
-               (:file "screen-ending")
-               (:file "game")))
+  :components ((:module "src"
+                :serial t
+                :components ((:file "package")
+                             ;;(:file "aspects")
+                             ;;(:file "entities")
+                             ;;(:file "systems")
+                             (:file "player")
+                             (:file "ball")
+                             (:file "screen-title")
+                             (:file "screen-gameplay")
+                             (:file "screen-ending")
+                             (:file "game")))))
