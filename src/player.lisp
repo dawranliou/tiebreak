@@ -12,10 +12,6 @@
   x z dir state frame-counter)
 
 (defun init-player (x z)
-  (unless *player-texture*
-    (setf *player-texture*
-          (load-texture
-           (namestring (merge-pathnames "player.png" *assets-path*)))))
   (make-player :x x
                :z z
                :dir :right
@@ -128,8 +124,3 @@
                           (make-vector3 :x x :y 4 :z z)
                           (make-vector2 :x 8 :y 8.0)
                           +green+))))
-
-(defun unload-player ()
-  (when *player-texture*
-    (unload-texture *player-texture*)
-    (setf *player-texture* nil)))

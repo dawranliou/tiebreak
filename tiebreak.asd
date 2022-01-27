@@ -26,7 +26,5 @@
                              ;;(:file "systems")
                              (:file "player")
                              (:file "ball")
-                             (:file "screen-title")
-                             (:file "screen-gameplay")
-                             (:file "screen-ending")
+                             (:file "screens")
                              (:file "game")))))
