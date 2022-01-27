@@ -23,8 +23,7 @@
                 :serial t
                 :components ((:file "package")
                              (:file "aspects")
-                             ;;(:file "entities")
-                             ;;(:file "systems")
+                             (:file "systems")
                              (:file "player")
                              (:file "ball")
                              (:file "screens")

@@ -113,11 +113,6 @@
           (dst-rec (if (and (find state '(:load :swing)) face-right-p)
                      (make-rectangle :x (+ 12 x) :y z :width 64 :height 64)
                      (make-rectangle :x x :y z :width 64 :height 64))))
-      (draw-circle-3d (make-vector3 :x x :y 0 :z z)
-                    4.0
-                    (make-vector3 :x 1.0 :y 0.0 :z 0.0)
-                    90.0
-                    +blue+)
       (draw-billboard-rec camera
                           *player-texture*
                           src-rec

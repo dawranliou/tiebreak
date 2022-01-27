@@ -77,7 +77,9 @@
             (ball-hit *b*))))))
 
   (if (ball-out-of-bound *b*)
-      (setf *b* (init-ball -10 -30 0.2 0.5))
+      (progn
+        (destroy-entity *b*)
+        (setf *b* (init-ball -10 -30 0.2 0.5)))
       (update-ball *b*)))
 
 (defun draw-court ()
@@ -108,12 +110,14 @@
         ;; ball
         (draw-ball-3d *b*)
         ;; Player
-        (draw-player-3d camera *p*))))
+        (draw-player-3d camera *p*)
+        (run-draw-projection))))
 
   ;; Heads-up display
   (draw-heads-up-display))
 
 (defmethod unload-screen ((screen (eql :gameplay)))
+  (destroy-entity *b*)
   (when *player-texture*
     (unload-texture *player-texture*)
     (setf *player-texture* nil)))
