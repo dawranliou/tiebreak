@@ -95,9 +95,9 @@
   ;; Background
   (clear-background +black+)
 
-  (with-slots (x z) *p*
-    (let* ((camera-pos (make-vector3 :x x :y 50 :z 100))
-           (camera-target (make-vector3 :x x :y 0 :z 0))
+  (with-slots (loc/x loc/z) *p*
+    (let* ((camera-pos (make-vector3 :x loc/x :y 50 :z 100))
+           (camera-target (make-vector3 :x loc/x :y 0 :z 0))
            (camera-up (make-vector3 :x 0.0 :y 1.0 :z 0))
            (camera (make-camera3d :position camera-pos
                                   :target camera-target
