@@ -13,3 +13,6 @@
 (define-aspect projection
   color
   (r :initform 0.0 :type single-float))
+
+(define-aspect sprite
+  w h row col texture)
