@@ -1,8 +1,8 @@
 (in-package #:tiebreak)
 
 
-(defparameter *screen-width* 800)
-(defparameter *screen-height* 450)
+(defparameter +screen-width+ 800)
+(defparameter +screen-height+ 450)
 
 
 (defvar *assets-path* (asdf:system-relative-pathname :tiebreak #p"assets/"))
@@ -31,7 +31,7 @@
       (draw-transition))))
 
 (defun main ()
-  (with-window (*screen-width* *screen-height* "Tiebreak!")
+  (with-window (+screen-width+ +screen-height+ "Tiebreak!")
     (init-game)
     (init-screen *current-screen*)
     (set-target-fps 60)
@@ -42,9 +42,3 @@
       (update-draw-frame))
 
     (unload-screen *current-screen*)))
-
-#+nil
-(main)
-
-#+nil
-(transition-to-screen :title)
