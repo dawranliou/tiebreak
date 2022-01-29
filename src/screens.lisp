@@ -51,19 +51,15 @@
   (update-player *p*)
   (update-player-animation *p*)
 
+  (update-ball *b*)
   (let ((hit-box (player-hit-box *p*)))
     (when hit-box
-      (destructuring-bind (x y z r) hit-box
-        (with-slots ((bx loc/x) (by loc/y) (bz loc/z)) *b*
-          (when (check-collision-spheres (make-vector3 :x bx :y by :z bz) r
-                                         (make-vector3 :x x :y y :z z) r)
+      (destructuring-bind (x z r) hit-box
+        (with-slots ((bx loc/x) (bz loc/z)) *b*
+          (when (check-collision-point-circle (make-vector2 :x x :y z)
+                                              (make-vector2 :x bx :y bz)
+                                              r)
             (ball-hit *b*))))))
-
-  (if (ball-out-of-bound *b*)
-      (progn
-        (destroy-entity *b*)
-        (setf *b* (init-ball -10 -30 0.2 0.5)))
-      (update-ball *b*))
 
   (run-grounded))
 
@@ -77,7 +73,8 @@
 
 (defun draw-heads-up-display ()
   (draw-fps 10 10)
-  (draw-text (format nil "~S - ~S" *player-score* *opponent-score*) 375 10 20 +raywhite+))
+  (draw-text (format nil "~S - ~S" *player-score* *opponent-score*)
+             375 10 20 +raywhite+))
 
 (defmethod draw-screen ((screen (eql :gameplay)))
   (clear-background +black+)

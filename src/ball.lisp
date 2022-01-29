@@ -24,7 +24,7 @@
                  :size/w +ball-r+
                  :size/h +ball-r+
                  :projection/color +blue+
-                 :projection/r 1.0))
+                 :projection/r 2.0))
 
 (defun update-ball (b)
   (with-slots (loc/x loc/y loc/z velocity/x velocity/y velocity/z drag/air size/h) b
@@ -40,15 +40,8 @@
             (velocity/x b) (* velocity/x drag/air)
             (velocity/z b) (* velocity/z drag/air)))))
 
-(defun ball-out-of-bound (b)
-  (with-slots (loc/x loc/y loc/z) b
-    (or (< 50 loc/x)
-        (< loc/x -50)
-        (< 50 loc/z)
-        (< loc/z -50)
-        (< loc/y -10))))
 
 (defun ball-hit (b)
-  (setf (velocity/x b) 5.0
-        (velocity/y b) 0.38
-        (velocity/z b) 5.0))
+  (setf (velocity/x b) -1.0
+        (velocity/y b) 0.25
+        (velocity/z b) -1.0))

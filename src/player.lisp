@@ -23,8 +23,8 @@
                  :bound/zmax 40.0
                  :velocity/x +player-speed+
                  :velocity/z +player-speed+
-                 :projection/color +blue+
-                 :projection/r 2.0
+                 :projection/color +gray+
+                 :projection/r 5.0
                  :sprite/w 16
                  :sprite/h 16
                  :sprite/row 0
@@ -92,12 +92,10 @@
 
 
 (defun player-hit-box (p)
-  (let ((x (loc/x p))
-        (z (loc/z p))
-        (face-right-p (equal :right (dir/dir p))))
+  (with-slots ((x loc/x) (z loc/z) (r projection/r)) p
     (case (fsm/state p)
-      (:load (list (+ x (if face-right-p 2 -1)) 2 z 1.0))
-      (:swing (list (+ x (if face-right-p 2 -1)) 2 z 1.5))
+      (:load (list x z r))
+      (:swing (list x z r))
       (t nil))))
 
 
