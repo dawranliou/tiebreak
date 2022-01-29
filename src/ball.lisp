@@ -27,12 +27,12 @@
                  :projection/r 1.0))
 
 (defun update-ball (b)
-  (with-slots (loc/x loc/y loc/z velocity/x velocity/y velocity/z drag/air) b
+  (with-slots (loc/x loc/y loc/z velocity/x velocity/y velocity/z drag/air size/h) b
     (let ((y-next (+ loc/y velocity/y)))
       (setf (loc/y b) (abs y-next)
             (loc/x b) (+ loc/x velocity/x)
             (loc/z b) (+ loc/z velocity/z)
-            (velocity/y b) (* (- (* velocity/y (if (< y-next +ball-r+)
+            (velocity/y b) (* (- (* velocity/y (if (< y-next (/ size/h 2))
                                                    (* -1 (elastic/damp b))
                                                    1))
                                  +g-per-frame+)
@@ -50,5 +50,5 @@
 
 (defun ball-hit (b)
   (setf (velocity/x b) 5.0
-        (velocity/y b) 0.2
+        (velocity/y b) 0.38
         (velocity/z b) 5.0))

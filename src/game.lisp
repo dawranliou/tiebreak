@@ -15,6 +15,7 @@
 
 (defun init-game ()
   (setf *current-screen* :title)
+  ;; Load assets
   (setf *player-texture*
         (load-texture
          (namestring (merge-pathnames "player.png" *assets-path*)))))
@@ -33,7 +34,6 @@
     (set-target-fps 60)
     (set-exit-key 0)                    ; Don't quit on ESC
 
-    ;; Main game loop
     (loop
       (if (window-should-close) (return))
       (update-screen *current-screen*)

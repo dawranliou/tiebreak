@@ -80,7 +80,6 @@
   (draw-text (format nil "~S - ~S" *player-score* *opponent-score*) 375 10 20 +raywhite+))
 
 (defmethod draw-screen ((screen (eql :gameplay)))
-  ;; Background
   (clear-background +black+)
 
   (with-slots (loc/x loc/z) *p*

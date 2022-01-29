@@ -19,7 +19,7 @@
                  :loc/z z
                  :bound/xmin -30.0
                  :bound/xmax 30.0
-                 :bound/zmin 0.0
+                 :bound/zmin -40.0
                  :bound/zmax 40.0
                  :velocity/x +player-speed+
                  :velocity/z +player-speed+
