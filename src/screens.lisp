@@ -93,13 +93,9 @@
                                     :fovy 30.0
                                     :type +camera-perspective+))
       (with-mode-3d (*camera*)
-        ;; Court
         (draw-court)
-        ;; ball
-        (draw-ball-3d *b*)
-        ;; Player
+        (run-draw-shape)
         (run-draw-sprite)
-
         (run-draw-projection))))
 
   ;; Heads-up display

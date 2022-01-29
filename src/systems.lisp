@@ -27,6 +27,14 @@
                           +green+))))
 
 
+(define-system draw-shape ((entity loc shape size))
+  (with-slots (loc/x loc/y loc/z shape/type shape/color size/h) entity
+    (ecase shape/type
+      (:sphere (draw-sphere (make-vector3 :x loc/x :y loc/y :z loc/z)
+                            size/h
+                            shape/color)))))
+
+
 (define-system grounded ((entity loc bound))
   (with-slots (loc/x loc/z bound/xmin bound/xmax bound/zmin bound/zmax)
       entity

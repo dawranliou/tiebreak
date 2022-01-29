@@ -33,6 +33,10 @@
   (col :initform 0 :type :integer)
   texture)
 
+(define-aspect shape
+  (type :type :keyword)
+  color)
+
 (define-aspect animation
   (frame :initform 0 :type :integer))
 

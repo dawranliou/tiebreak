@@ -3,7 +3,7 @@
 (defparameter +g-per-frame+ 0.005)
 (defparameter +ball-r+ 1.0)
 
-(define-entity ball (loc velocity projection bound elastic drag))
+(define-entity ball (loc velocity projection bound elastic drag shape size))
 
 (defun init-ball (x z vx vz)
   (create-entity 'ball
@@ -19,6 +19,10 @@
                  :velocity/x vx
                  :velocity/y 0.0
                  :velocity/z vz
+                 :shape/type :sphere
+                 :shape/color +red+
+                 :size/w +ball-r+
+                 :size/h +ball-r+
                  :projection/color +blue+
                  :projection/r 1.0))
 
@@ -35,10 +39,6 @@
                               drag/air)
             (velocity/x b) (* velocity/x drag/air)
             (velocity/z b) (* velocity/z drag/air)))))
-
-(defun draw-ball-3d (b)
-  (with-slots (loc/x loc/y loc/z) b
-    (draw-sphere (make-vector3 :x loc/x :y loc/y :z loc/z) +ball-r+ +red+)))
 
 (defun ball-out-of-bound (b)
   (with-slots (loc/x loc/y loc/z) b
