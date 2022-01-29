@@ -31,6 +31,7 @@
     (init-game)
     (init-screen *current-screen*)
     (set-target-fps 60)
+    (set-exit-key 0)                    ; Don't quit on ESC
 
     ;; Main game loop
     (loop
