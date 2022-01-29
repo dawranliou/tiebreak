@@ -21,6 +21,15 @@
   (col :initform 0 :type :integer)
   texture)
 
+(define-aspect animation
+  (frame :initform 0 :type :integer))
+
 (define-aspect size
   (w :initform 0.0 :type :single-float)
   (h :initform 0.0 :type :single-float))
+
+(define-aspect fsm
+  (state :type :keyword))
+
+(define-aspect dir
+  (dir :initform :right :type :keyword))

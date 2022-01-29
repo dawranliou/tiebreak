@@ -6,9 +6,6 @@
 
 
 (defvar *assets-path* (asdf:system-relative-pathname :tiebreak #p"assets/"))
-(defvar *player-dir* :right)
-(defvar *player-state* :idle)
-(defvar *player-frame-counter* 0)
 (defvar *player-score* 0)
 (defvar *opponent-score* 0)
 (defvar *player-texture* nil)

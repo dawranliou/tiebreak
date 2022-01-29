@@ -8,7 +8,7 @@
 (defparameter +player-speed+ 0.5)
 
 
-(define-entity player (loc velocity projection sprite size))
+(define-entity player (loc velocity projection sprite size dir animation fsm))
 
 
 (defun init-player (x z)
@@ -26,14 +26,17 @@
                  :sprite/col 1
                  :sprite/texture *player-texture*
                  :size/w 8.0
-                 :size/h 8.0))
+                 :size/h 8.0
+                 :animation/frame 0
+                 :dir/dir :right
+                 :fsm/state :idle))
 
 
 (defun update-player (p)
   ;; state + input = new state
   (let* ((current-x (loc/x p))
          (current-z (loc/z p))
-         (current-frame *player-frame-counter*)
+         (current-frame (animation/frame p))
          (right-key-down (is-key-down +key-right+))
          (left-key-down (is-key-down +key-left+))
          (up-key-down (is-key-down +key-up+))
@@ -41,26 +44,26 @@
          (move-p (or right-key-down left-key-down up-key-down down-key-down))
          (z-key-down (is-key-down +key-z+))
          (z-key-released (is-key-released +key-z+)))
-    (case *player-state*
+    (case (fsm/state p)
       (:idle (cond
-               (z-key-down (setf *player-state* :load
-                                 *player-frame-counter* 0))
-               (move-p (setf *player-state* :move
-                             *player-frame-counter* 0))
-               (t (setf *player-frame-counter* (if (< current-frame 40)
-                                                   (1+ current-frame)
-                                                   0)))))
+               (z-key-down (setf (fsm/state p) :load
+                                 (animation/frame p) 0))
+               (move-p (setf (fsm/state p) :move
+                             (animation/frame p) 0))
+               (t (setf (animation/frame p) (if (< current-frame 40)
+                                                (1+ current-frame)
+                                                0)))))
       (:move (cond
-               (z-key-down (setf *player-state* :load
-                                 *player-frame-counter* 0))
-               (move-p (setf *player-frame-counter* (if (< current-frame 40)
-                                                        (1+ current-frame)
-                                                        0)
-                             *player-dir* (cond
-                                            (right-key-down :right)
-                                            (left-key-down :left)
-                                            (up-key-down :right)
-                                            (down-key-down :left))
+               (z-key-down (setf (fsm/state p) :load
+                                 (animation/frame p) 0))
+               (move-p (setf (animation/frame p) (if (< current-frame 40)
+                                                     (1+ current-frame)
+                                                     0)
+                             (dir/dir p) (cond
+                                           (right-key-down :right)
+                                           (left-key-down :left)
+                                           (up-key-down :right)
+                                           (down-key-down :left))
                              (loc/x p) (+ (* (velocity/x p)
                                              (+ (if right-key-down 1 0)
                                                 (if left-key-down -1 0)))
@@ -69,34 +72,34 @@
                                              (+ (if up-key-down -1 0)
                                                 (if down-key-down 1 0)))
                                           current-z)))
-               (t (setf *player-state* :idle
-                        *player-frame-counter* 0))))
+               (t (setf (fsm/state p) :idle
+                        (animation/frame p) 0))))
       (:load (cond
-               (z-key-released (setf *player-state* :swing
-                                     *player-frame-counter* 0))
-               (right-key-down (setf *player-dir* :right))
-               (left-key-down (setf *player-dir* :left))
+               (z-key-released (setf (fsm/state p) :swing
+                                     (animation/frame p) 0))
+               (right-key-down (setf (dir/dir p) :right))
+               (left-key-down (setf (dir/dir p) :left))
                (z-key-down t)))
       (:swing (if (< current-frame 24)
-                  (setf *player-frame-counter* (1+ current-frame))
-                  (setf *player-state* :idle
-                        *player-frame-counter* 0))))))
+                  (setf (animation/frame p) (1+ current-frame))
+                  (setf (fsm/state p) :idle
+                        (animation/frame p) 0))))))
 
 
 (defun player-hit-box (p)
   (let ((x (loc/x p))
         (z (loc/z p))
-        (face-right-p (equal :right *player-dir*)))
-    (case *player-state*
+        (face-right-p (equal :right (dir/dir p))))
+    (case (fsm/state p)
       (:load (list (+ x (if face-right-p 2 -1)) 2 z 1.0))
       (:swing (list (+ x (if face-right-p 2 -1)) 2 z 1.5))
       (t nil))))
 
 
 (defun update-player-animation (p)
-  (let ((face-right-p (equal :right *player-dir*))
-        (current-frame *player-frame-counter*))
-    (case *player-state*
+  (let ((face-right-p (equal :right (dir/dir p)))
+        (current-frame (animation/frame p)))
+    (case (fsm/state p)
       (:idle (setf (sprite/row p) +sprite-idle+
                    (sprite/col p) (floor current-frame 10)))
       (:move (setf (sprite/row p) (if face-right-p
