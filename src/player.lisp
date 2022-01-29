@@ -7,10 +7,6 @@
 (defparameter +sprite-run-left+ 4)
 (defparameter +player-speed+ 0.5)
 
-(defvar *player-dir* :right)
-(defvar *player-state* :idle)
-(defvar *player-frame-counter* 0)
-
 
 (define-entity player (loc velocity projection sprite size))
 
@@ -95,6 +91,7 @@
       (:load (list (+ x (if face-right-p 2 -1)) 2 z 1.0))
       (:swing (list (+ x (if face-right-p 2 -1)) 2 z 1.5))
       (t nil))))
+
 
 (defun update-player-animation (p)
   (let ((face-right-p (equal :right *player-dir*))

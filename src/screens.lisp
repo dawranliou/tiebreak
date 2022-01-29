@@ -2,21 +2,19 @@
 
 
 (defvar *current-screen* nil)
-
-
 (defvar *trans-alpha* 0.0)
 (defvar *on-transition-p* nil)
 (defvar *trans-fade-out-p* nil)
 (defvar *trans-from-screen* nil)
 (defvar *trans-to-screen* nil)
-
-
-(defvar *frame-counter* 0)
 (defvar *finish-screen* nil)
 (defvar *camera* nil)
 
 
 (defgeneric init-screen (screen))
+
+(defmethod init-screen (screen)
+  (setf *finish-screen* nil))
 
 (defgeneric update-screen (screen))
 
@@ -24,12 +22,11 @@
 
 (defgeneric unload-screen (screen))
 
-(defmethod unload-screen (screen))
+(defmethod unload-screen (screen)
+  nil)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; title screen
-(defmethod init-screen ((screen (eql :title)))
-  (setf *frame-counter* 0
-        *finish-screen* nil))
 
 (defmethod update-screen ((screen (eql :title)))
   (when (is-key-pressed +key-enter+)
@@ -40,32 +37,16 @@
   (draw-text "TIEBREAK" 120 220 60 +raywhite+)
   (draw-text "PRESS ENTER to START" 120 280 20 +raywhite+))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; gameplay screen
 
-(defvar *player-frame-counter* 0)
-(defvar *player-score* 0)
-(defvar *opponent-score* 0)
-(defvar *player-texture* nil)
-(defvar *p* nil)
-(defvar *b* nil)
-
-(defmethod init-screen ((screen (eql :gameplay)))
-  (setf *frame-counter* 0
-        *finish-screen* nil)
-  (unless *player-texture*
-    (setf *player-texture*
-          (load-texture
-           (namestring (merge-pathnames "player.png" *assets-path*)))))
+(defmethod init-screen :after ((screen (eql :gameplay)))
   (setf *p* (init-player 18 40)
         *b* (init-ball 0 0 0.2 0.5)))
 
 (defmethod update-screen ((screen (eql :gameplay)))
   (when (is-key-pressed +key-enter+)
     (setq *finish-screen* :ending))
-
-  (incf *frame-counter*)
-  (when (<= 60 *frame-counter*)
-    (setq *frame-counter* 0))
 
   (update-player *p*)
   (update-player-animation *p*)
@@ -120,16 +101,10 @@
   (draw-heads-up-display))
 
 (defmethod unload-screen ((screen (eql :gameplay)))
-  (clear-entities)
-  (when *player-texture*
-    (unload-texture *player-texture*)
-    (setf *player-texture* nil)))
+  (clear-entities))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ending screen
-
-(defmethod init-screen ((screen (eql :ending)))
-  (setf *frame-counter* 0
-        *finish-screen* nil))
 
 (defmethod update-screen ((screen (eql :ending)))
   (when (is-key-pressed +key-enter+)
@@ -139,6 +114,7 @@
   (clear-background +black+)
   (draw-text "GAME OVER" 120 220 20 +raywhite+))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; transition
 
 (defun transition-to-screen (screen)
@@ -176,3 +152,15 @@
                   (get-screen-width)
                   (get-screen-height)
                   (fade +black+ *trans-alpha*)))
+
+(defmethod update-screen :around (screen)
+  (if *on-transition-p*
+      (update-transition)
+      (progn
+        (call-next-method)
+        (when *finish-screen*
+          (transition-to-screen *finish-screen*)))))
+
+(defmethod draw-screen :after (screen)
+  (when *on-transition-p*
+    (draw-transition)))

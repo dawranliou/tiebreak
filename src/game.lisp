@@ -6,29 +6,28 @@
 
 
 (defvar *assets-path* (asdf:system-relative-pathname :tiebreak #p"assets/"))
+(defvar *player-dir* :right)
+(defvar *player-state* :idle)
+(defvar *player-frame-counter* 0)
+(defvar *player-score* 0)
+(defvar *opponent-score* 0)
+(defvar *player-texture* nil)
+(defvar *p* nil)
+(defvar *b* nil)
 
 
 (defun init-game ()
-  (setq *current-screen* :title
-        *trans-alpha* 0.0
-        *on-transition-p* nil
-        *trans-fade-out-p* nil
-        *trans-from-screen* nil
-        *trans-to-screen* nil))
+  (setf *current-screen* :title)
+  (setf *player-texture*
+        (load-texture
+         (namestring (merge-pathnames "player.png" *assets-path*)))))
 
 
-(defun update-draw-frame ()
-  (if *on-transition-p*
-      (update-transition)
-      (progn
-        (update-screen *current-screen*)
-        (when *finish-screen*
-          (transition-to-screen *finish-screen*))))
+(defun unload-game ()
+  (when *player-texture*
+    (unload-texture *player-texture*)
+    (setf *player-texture* nil)))
 
-  (with-drawing
-    (draw-screen *current-screen*)
-    (when *on-transition-p*
-      (draw-transition))))
 
 (defun main ()
   (with-window (+screen-width+ +screen-height+ "Tiebreak!")
@@ -39,6 +38,9 @@
     ;; Main game loop
     (loop
       (if (window-should-close) (return))
-      (update-draw-frame))
+      (update-screen *current-screen*)
+      (with-drawing
+        (draw-screen *current-screen*)))
 
-    (unload-screen *current-screen*)))
+    (unload-screen *current-screen*)
+    (unload-game)))
