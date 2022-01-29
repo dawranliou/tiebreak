@@ -8,7 +8,8 @@
 (defparameter +player-speed+ 0.5)
 
 
-(define-entity player (loc velocity projection sprite size dir animation fsm))
+(define-entity player
+    (loc bound velocity projection sprite size dir animation fsm))
 
 
 (defun init-player (x z)
@@ -16,6 +17,10 @@
                  :loc/x x
                  :loc/y 4.0
                  :loc/z z
+                 :bound/xmin -30.0
+                 :bound/xmax 30.0
+                 :bound/zmin 0.0
+                 :bound/zmax 40.0
                  :velocity/x +player-speed+
                  :velocity/z +player-speed+
                  :projection/color +blue+

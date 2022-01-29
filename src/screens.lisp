@@ -63,9 +63,14 @@
       (progn
         (destroy-entity *b*)
         (setf *b* (init-ball -10 -30 0.2 0.5)))
-      (update-ball *b*)))
+      (update-ball *b*))
+
+  (run-grounded))
 
 (defun draw-court ()
+  (draw-plane (make-vector3 :x 0 :y -0.1 :z -20)
+              (make-vector2 :x 60 :y 40)
+              +lightgray+)
   (draw-plane (make-vector3 :x 0 :y -0.1 :z 20)
               (make-vector2 :x 60 :y 40)
               +darkgray+))

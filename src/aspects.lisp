@@ -5,6 +5,15 @@
   (y :initform 0.0 :type :single-float)
   (z :initform 0.0 :type :single-float))
 
+(define-aspect bound
+  (xmin :type :single-float)
+  (xmax :type :single-float)
+  (zmin :type :single-float)
+  (zmax :type :single-float))
+
+(define-aspect elastic
+  (damp :type single-float))
+
 (define-aspect velocity
   (x :initform 0.0 :type :single-float)
   (y :initform 0.0 :type :single-float)

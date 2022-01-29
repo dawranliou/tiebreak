@@ -25,3 +25,35 @@
                           (make-vector3 :x loc/x :y loc/y :z loc/z)
                           (make-vector2 :x size/w :y size/h)
                           +green+))))
+
+
+(define-system grounded ((entity loc bound))
+  (with-slots (loc/x loc/z bound/xmin bound/xmax bound/zmin bound/zmax)
+      entity
+    (if (elastic? entity)
+        (with-slots (elastic/damp velocity/x velocity/z) entity
+          (cond
+            ((< loc/x bound/xmin) (setf (loc/x entity) bound/xmin
+                                        (velocity/x entity) (* -1
+                                                               elastic/damp
+                                                               velocity/x)))
+            ((< bound/xmax loc/x) (setf (loc/x entity) bound/xmax
+                                        (velocity/x entity) (* -1
+                                                               elastic/damp
+                                                               velocity/x))))
+          (cond
+            ((< loc/z bound/zmin) (setf (loc/z entity) bound/zmin
+                                        (velocity/z entity) (* -1
+                                                               elastic/damp
+                                                               velocity/z)))
+            ((< bound/zmax loc/z) (setf (loc/z entity) bound/zmax
+                                        (velocity/z entity) (* -1
+                                                               elastic/damp
+                                                               velocity/z)))))
+        (progn
+          (cond
+            ((< loc/x bound/xmin) (setf (loc/x entity) bound/xmin))
+            ((< bound/xmax loc/x) (setf (loc/x entity) bound/xmax)))
+          (cond
+            ((< loc/z bound/zmin) (setf (loc/z entity) bound/zmin))
+            ((< bound/zmax loc/z) (setf (loc/z entity) bound/zmax)))))))
