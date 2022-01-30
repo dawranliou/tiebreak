@@ -38,7 +38,7 @@
   color)
 
 (define-aspect animation
-  (frame :initform 0 :type :integer))
+  (dt :initform 0.0 :type :single-float))
 
 (define-aspect size
   (w :initform 0.0 :type :single-float)

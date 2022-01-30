@@ -54,10 +54,10 @@
   (when (is-key-pressed +key-enter+)
     (setq *finish-screen* :ending))
 
-  (update-player *p*)
-  (update-player-animation *p*)
+  (update-player *p* dt)
 
   (update-ball *b*)
+
   (let ((hit-box (player-hit-box *p*)))
     (when hit-box
       (destructuring-bind (x z r) hit-box

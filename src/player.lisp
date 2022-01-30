@@ -5,7 +5,7 @@
 (defparameter +sprite-bh-swing+ 2)
 (defparameter +sprite-run-right+ 3)
 (defparameter +sprite-run-left+ 4)
-(defparameter +player-speed+ 0.5)
+(defparameter +player-speed+ 30)
 
 
 (define-entity player
@@ -32,63 +32,80 @@
                  :sprite/texture *player-texture*
                  :size/w 8.0
                  :size/h 8.0
-                 :animation/frame 0
                  :dir/dir :right
                  :fsm/state :idle))
 
 
-(defun update-player (p)
-  ;; state + input = new state
-  (let* ((current-x (loc/x p))
-         (current-z (loc/z p))
-         (current-frame (animation/frame p))
-         (right-key-down (is-key-down +key-right+))
-         (left-key-down (is-key-down +key-left+))
-         (up-key-down (is-key-down +key-up+))
-         (down-key-down (is-key-down +key-down+))
-         (move-p (or right-key-down left-key-down up-key-down down-key-down))
-         (z-key-down (is-key-down +key-z+))
-         (z-key-released (is-key-released +key-z+)))
+(defun update-player (p dt)
+  ;; Update state
+  (with-slots (loc/x loc/z animation/dt) p
+    (let ((right-key-down (is-key-down +key-right+))
+          (left-key-down (is-key-down +key-left+))
+          (up-key-down (is-key-down +key-up+))
+          (down-key-down (is-key-down +key-down+))
+          (z-key-down (is-key-down +key-z+))
+          (z-key-released (is-key-released +key-z+)))
+      (let ((move-p (or right-key-down left-key-down up-key-down down-key-down)))
+        (case (fsm/state p)
+          (:idle (cond
+                   (z-key-down (setf (fsm/state p) :load
+                                     (animation/dt p) 0.0))
+                   (move-p (setf (fsm/state p) :move
+                                 (animation/dt p) 0.0))
+                   (t (setf (animation/dt p) (if (< animation/dt 0.8)
+                                                 (+ animation/dt dt)
+                                                 0.0)))))
+          (:move (cond
+                   (z-key-down (setf (fsm/state p) :load
+                                     (animation/dt p) 0.0))
+                   (move-p (setf (animation/dt p) (if (< animation/dt 0.8)
+                                                      (+ animation/dt dt)
+                                                      0.0)
+                                 (dir/dir p) (cond
+                                               (right-key-down :right)
+                                               (left-key-down :left)
+                                               (up-key-down :right)
+                                               (down-key-down :left))
+                                 (loc/x p) (+ (* (velocity/x p)
+                                                 dt
+                                                 (+ (if right-key-down 1 0)
+                                                    (if left-key-down -1 0)))
+                                              loc/x)
+                                 (loc/z p) (+ (* (velocity/z p)
+                                                 dt
+                                                 (+ (if up-key-down -1 0)
+                                                    (if down-key-down 1 0)))
+                                              loc/z)))
+                   (t (setf (fsm/state p) :idle
+                            (animation/dt p) 0.0))))
+          (:load (cond
+                   (z-key-released (setf (fsm/state p) :swing
+                                         (animation/dt p) 0.0))
+                   (right-key-down (setf (dir/dir p) :right))
+                   (left-key-down (setf (dir/dir p) :left))
+                   (z-key-down t)))
+          (:swing (if (< animation/dt 0.4)
+                      (setf (animation/dt p) (+ animation/dt dt))
+                      (setf (fsm/state p) :idle
+                            (animation/dt p) 0.0)))))))
+
+  ;; update animation
+  (let ((face-right-p (equal :right (dir/dir p))))
     (case (fsm/state p)
-      (:idle (cond
-               (z-key-down (setf (fsm/state p) :load
-                                 (animation/frame p) 0))
-               (move-p (setf (fsm/state p) :move
-                             (animation/frame p) 0))
-               (t (setf (animation/frame p) (if (< current-frame 40)
-                                                (1+ current-frame)
-                                                0)))))
-      (:move (cond
-               (z-key-down (setf (fsm/state p) :load
-                                 (animation/frame p) 0))
-               (move-p (setf (animation/frame p) (if (< current-frame 40)
-                                                     (1+ current-frame)
-                                                     0)
-                             (dir/dir p) (cond
-                                           (right-key-down :right)
-                                           (left-key-down :left)
-                                           (up-key-down :right)
-                                           (down-key-down :left))
-                             (loc/x p) (+ (* (velocity/x p)
-                                             (+ (if right-key-down 1 0)
-                                                (if left-key-down -1 0)))
-                                          current-x)
-                             (loc/z p) (+ (* (velocity/z p)
-                                             (+ (if up-key-down -1 0)
-                                                (if down-key-down 1 0)))
-                                          current-z)))
-               (t (setf (fsm/state p) :idle
-                        (animation/frame p) 0))))
-      (:load (cond
-               (z-key-released (setf (fsm/state p) :swing
-                                     (animation/frame p) 0))
-               (right-key-down (setf (dir/dir p) :right))
-               (left-key-down (setf (dir/dir p) :left))
-               (z-key-down t)))
-      (:swing (if (< current-frame 24)
-                  (setf (animation/frame p) (1+ current-frame))
-                  (setf (fsm/state p) :idle
-                        (animation/frame p) 0))))))
+      (:idle (setf (sprite/row p) +sprite-idle+
+                   (sprite/col p) (floor (animation/dt p) 0.2)))
+      (:move (setf (sprite/row p) (if face-right-p
+                                      +sprite-run-right+
+                                      +sprite-run-left+)
+                   (sprite/col p) (floor (animation/dt p) 0.2)))
+      (:load (setf (sprite/row p) (if face-right-p
+                                      +sprite-fh-swing+
+                                      +sprite-bh-swing+)
+                   (sprite/col p) 0))
+      (:swing (setf (sprite/row p) (if face-right-p
+                                       +sprite-fh-swing+
+                                       +sprite-bh-swing+)
+                    (sprite/col p) (1+ (floor (animation/dt p) 0.1)))))))
 
 
 (defun player-hit-box (p)
@@ -97,23 +114,3 @@
       (:load (list x z r))
       (:swing (list x z r))
       (t nil))))
-
-
-(defun update-player-animation (p)
-  (let ((face-right-p (equal :right (dir/dir p)))
-        (current-frame (animation/frame p)))
-    (case (fsm/state p)
-      (:idle (setf (sprite/row p) +sprite-idle+
-                   (sprite/col p) (floor current-frame 10)))
-      (:move (setf (sprite/row p) (if face-right-p
-                                      +sprite-run-right+
-                                      +sprite-run-left+)
-                   (sprite/col p) (floor current-frame 10)))
-      (:load (setf (sprite/row p) (if face-right-p
-                                      +sprite-fh-swing+
-                                      +sprite-bh-swing+)
-                   (sprite/col p) 0))
-      (:swing (setf (sprite/row p) (if face-right-p
-                                       +sprite-fh-swing+
-                                       +sprite-bh-swing+)
-                    (sprite/col p) (1+ (floor current-frame 8)))))))
