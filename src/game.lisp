@@ -36,7 +36,7 @@
 
     (loop
       (if (window-should-close) (return))
-      (update-screen *current-screen*)
+      (update-screen *current-screen* (get-frame-time))
       (with-drawing
         (draw-screen *current-screen*)))
 

@@ -16,9 +16,15 @@
 (defmethod init-screen (screen)
   (setf *finish-screen* nil))
 
-(defgeneric update-screen (screen))
+(defgeneric update-screen (screen dt))
+
+(defmethod update-screen (screen dt)
+  nil)
 
 (defgeneric draw-screen (screen))
+
+(defmethod draw-screen (screen)
+  nil)
 
 (defgeneric unload-screen (screen))
 
@@ -28,7 +34,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; title screen
 
-(defmethod update-screen ((screen (eql :title)))
+(defmethod update-screen ((screen (eql :title)) dt)
   (when (is-key-pressed +key-enter+)
     (setf *finish-screen* :gameplay)))
 
@@ -44,7 +50,7 @@
   (setf *p* (init-player 18 40)
         *b* (init-ball 0 0 0.2 0.5)))
 
-(defmethod update-screen ((screen (eql :gameplay)))
+(defmethod update-screen ((screen (eql :gameplay)) dt)
   (when (is-key-pressed +key-enter+)
     (setq *finish-screen* :ending))
 
@@ -103,7 +109,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ending screen
 
-(defmethod update-screen ((screen (eql :ending)))
+(defmethod update-screen ((screen (eql :ending)) dt)
   (when (is-key-pressed +key-enter+)
     (setq *finish-screen* :title)))
 
@@ -150,7 +156,7 @@
                   (get-screen-height)
                   (fade +black+ *trans-alpha*)))
 
-(defmethod update-screen :around (screen)
+(defmethod update-screen :around (screen dt)
   (if *on-transition-p*
       (update-transition)
       (progn
