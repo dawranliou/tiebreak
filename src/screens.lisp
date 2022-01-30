@@ -1,14 +1,14 @@
 (in-package #:tiebreak)
 
 
-(defvar *current-screen* nil)
+;; Screen transition states
+
 (defvar *trans-alpha* 0.0)
 (defvar *on-transition-p* nil)
 (defvar *trans-fade-out-p* nil)
 (defvar *trans-from-screen* nil)
 (defvar *trans-to-screen* nil)
 (defvar *finish-screen* nil)
-(defvar *camera* nil)
 
 
 (defgeneric init-screen (screen))

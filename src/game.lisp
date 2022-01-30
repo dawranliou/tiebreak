@@ -5,12 +5,16 @@
 (defparameter +screen-height+ 450)
 
 
+;; Global states
+
 (defvar *assets-path* (asdf:system-relative-pathname :tiebreak #p"assets/"))
 (defvar *player-score* 0)
 (defvar *opponent-score* 0)
 (defvar *player-texture* nil)
 (defvar *p* nil)
 (defvar *b* nil)
+(defvar *current-screen* nil)
+(defvar *camera* nil)
 
 
 (defun init-game ()
