@@ -48,7 +48,7 @@
 
 (defmethod init-screen :after ((screen (eql :gameplay)))
   (setf *p* (init-player 18 40)
-        *b* (init-ball 0 0 0.2 0.5)))
+        *b* (init-ball 0 0 30 30)))
 
 (defmethod update-screen ((screen (eql :gameplay)) dt)
   (when (is-key-pressed +key-enter+)
@@ -56,7 +56,7 @@
 
   (update-player *p* dt)
 
-  (update-ball *b*)
+  (update-ball *b* dt)
 
   (let ((hit-box (player-hit-box *p*)))
     (when hit-box

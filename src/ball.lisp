@@ -1,6 +1,6 @@
 (in-package #:tiebreak)
 
-(defparameter +g-per-frame+ 0.005)
+(defparameter +gravity+ -10)
 (defparameter +ball-r+ 2.0)
 
 (define-entity ball (loc velocity projection bound elastic drag shape size))
@@ -26,23 +26,23 @@
                  :projection/color +gray+
                  :projection/r 2.0))
 
-(defun update-ball (b)
+(defun update-ball (b dt)
   (with-slots (loc/x loc/y loc/z velocity/x velocity/y velocity/z
                drag/air size/h elastic/damp)
       b
-    (setf (loc/x b) (+ loc/x velocity/x)
-          (loc/z b) (+ loc/z velocity/z)
+    (setf (loc/x b) (+ loc/x (* velocity/x dt))
+          (loc/y b) (+ loc/y (* velocity/y dt))
+          (loc/z b) (+ loc/z (* velocity/z dt))
           (velocity/x b) (* velocity/x drag/air)
+          (velocity/y b) (+ velocity/y (* +gravity+ dt))
           (velocity/z b) (* velocity/z drag/air))
-    (let ((y-next (+ loc/y velocity/y)))
-      (if (< y-next (/ size/h 2))       ; Hit the ground?
-          (setf (velocity/y b) (* velocity/y -1 elastic/damp))
-          (setf (loc/y b) y-next
-                (velocity/y b) (- velocity/y +g-per-frame+))))))
+    (when (< (loc/y b) (/ size/h 2))    ; Hit the ground?
+      (setf (loc/y b) (/ size/h 2)
+            (velocity/y b) (* velocity/y -1 elastic/damp)))))
 
 
 (defun ball-hit (b)
   (setf (loc/y b) 2.0
-        (velocity/x b) -1.0
-        (velocity/y b) 0.2
-        (velocity/z b) -1.0))
+        (velocity/x b) -30
+        (velocity/y b) 10
+        (velocity/z b) -30))
