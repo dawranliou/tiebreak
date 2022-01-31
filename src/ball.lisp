@@ -1,6 +1,6 @@
 (in-package #:tiebreak)
 
-(defparameter +gravity+ -20)
+(defparameter +gravity+ -30)
 
 (define-entity ball (loc velocity projection bound elastic drag shape size))
 
@@ -46,7 +46,7 @@
                                (* velocity/y -1 elastic/damp))))))
 
 
-(defun ball-hit (b)
-  (setf (velocity/x b) -30
-        (velocity/y b) 10
-        (velocity/z b) -30))
+(defun ball-hit (b power)
+  (setf (velocity/x b) (* -10 power)
+        (velocity/y b) (* 5 power)
+        (velocity/z b) (* -10 power)))

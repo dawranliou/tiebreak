@@ -8,7 +8,7 @@
 
 
 (define-entity player
-    (loc bound velocity projection sprite size dir animation fsm))
+    (loc bound velocity projection sprite size dir animation fsm stroke))
 
 
 (defun init-player (x z)
@@ -37,7 +37,7 @@
 
 (defun update-player (p dt)
   ;; Update state
-  (with-slots (loc/x loc/z animation/dt) p
+  (with-slots (loc/x loc/z animation/dt stroke/power) p
     (let ((right-key-down (is-key-down +key-right+))
           (left-key-down (is-key-down +key-left+))
           (up-key-down (is-key-down +key-up+))
@@ -77,15 +77,18 @@
                                               loc/z)))
                    (t (setf (fsm/state p) :idle
                             (animation/dt p) 0.0))))
-          (:load (cond
-                   (z-key-released (setf (fsm/state p) :swing
-                                         (animation/dt p) 0.0))
-                   (right-key-down (setf (dir/dir p) :right))
-                   (left-key-down (setf (dir/dir p) :left))
-                   (z-key-down t)))
+          (:load (progn
+                   (when right-key-down (setf (dir/dir p) :right))
+                   (when left-key-down (setf (dir/dir p) :left))
+                   (cond
+                     (z-key-released (setf (fsm/state p) :swing
+                                           (animation/dt p) 0.0))
+                     (z-key-down (setf (stroke/power p) (min (+ stroke/power (* dt 5))
+                                                             3.0))))))
           (:swing (if (< animation/dt 0.4)
                       (setf (animation/dt p) (+ animation/dt dt))
                       (setf (fsm/state p) :idle
+                            (stroke/power p) 1.0
                             (animation/dt p) 0.0)))))))
 
   ;; update animation
@@ -108,8 +111,8 @@
 
 
 (defun player-hit-box (p)
-  (with-slots ((x loc/x) (z loc/z) (r projection/r)) p
+  (with-slots ((x loc/x) (z loc/z) (r projection/r) stroke/power) p
     (case (fsm/state p)
-      (:load (list x z r))
-      (:swing (list x z r))
+      ;;(:load (list x z r))
+      (:swing (list x z r stroke/power))
       (t nil))))

@@ -7,7 +7,18 @@
                     projection/r
                     (make-vector3 :x 1.0 :y 0.0 :z 0.0)
                     90.0
-                    projection/color)))
+                    projection/color)
+    (when (stroke? entity)
+      (with-slots (stroke/power stroke/level) entity
+        (draw-circle-3d (make-vector3 :x loc/x :y 0 :z loc/z)
+                        (* projection/r stroke/power 1/3)
+                        (make-vector3 :x 1.0 :y 0.0 :z 0.0)
+                        90.0
+                        (cond
+                          ((< 3 stroke/power) +red+)
+                          ((< 2 stroke/power) +orange+)
+                          ((< 1 stroke/power) +yellow+)
+                          (t +gray+)))))))
 
 
 (define-system draw-sprite ((entity loc sprite size))

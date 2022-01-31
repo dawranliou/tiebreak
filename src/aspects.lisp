@@ -49,3 +49,6 @@
 
 (define-aspect dir
   (dir :initform :right :type :keyword))
+
+(define-aspect stroke
+  (power :initform 1.0 :type :single-float))

@@ -60,12 +60,12 @@
 
   (let ((hit-box (player-hit-box *p*)))
     (when hit-box
-      (destructuring-bind (x z r) hit-box
+      (destructuring-bind (x z r p) hit-box
         (with-slots ((bx loc/x) (bz loc/z) (br projection/r)) *b*
           (when (check-collision-point-circle (make-vector2 :x x :y z)
                                               (make-vector2 :x bx :y bz)
                                               (+ r br))
-            (ball-hit *b*))))))
+            (ball-hit *b* p))))))
 
   (run-grounded))
 
