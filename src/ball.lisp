@@ -1,7 +1,6 @@
 (in-package #:tiebreak)
 
 (defparameter +gravity+ -20)
-(defparameter +ball-r+ 2.0)
 
 (define-entity ball (loc velocity projection bound elastic drag shape size))
 
@@ -21,8 +20,8 @@
                  :velocity/z vz
                  :shape/type :sphere
                  :shape/color +red+
-                 :size/w +ball-r+
-                 :size/h +ball-r+
+                 :size/w 2.0
+                 :size/h 2.0
                  :projection/color +gray+
                  :projection/r 2.0))
 

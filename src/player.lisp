@@ -5,7 +5,6 @@
 (defparameter +sprite-bh-swing+ 2)
 (defparameter +sprite-run-right+ 3)
 (defparameter +sprite-run-left+ 4)
-(defparameter +player-speed+ 30)
 
 
 (define-entity player
@@ -21,8 +20,8 @@
                  :bound/xmax 30.0
                  :bound/zmin -40.0
                  :bound/zmax 40.0
-                 :velocity/x +player-speed+
-                 :velocity/z +player-speed+
+                 :velocity/x 30.0
+                 :velocity/z 30.0
                  :projection/color +gray+
                  :projection/r 5.0
                  :sprite/w 16
