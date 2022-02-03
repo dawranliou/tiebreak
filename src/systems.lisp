@@ -9,8 +9,12 @@
                     90.0
                     projection/color)
     (when (stroke? entity)
-      (with-slots (stroke/power stroke/level) entity
-        (draw-circle-3d (make-vector3 :x loc/x :y 0 :z loc/z)
+      (with-slots (stroke/power stroke/reach dir/dir) entity
+        (draw-circle-3d (make-vector3 :x (+ loc/x
+                                            (* stroke/reach
+                                               (if (eql dir/dir :right) 1 -1)))
+                                      :y 0
+                                      :z loc/z)
                         (* projection/r stroke/power 1/3)
                         (make-vector3 :x 1.0 :y 0.0 :z 0.0)
                         90.0

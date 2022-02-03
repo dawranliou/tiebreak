@@ -111,8 +111,11 @@
 
 
 (defun player-hit-box (p)
-  (with-slots ((x loc/x) (z loc/z) (r projection/r) stroke/power) p
+  (with-slots ((x loc/x) (z loc/z) (r projection/r)
+               stroke/power stroke/reach dir/dir)
+      p
     (case (fsm/state p)
-      ;;(:load (list x z r))
-      (:swing (list x z r stroke/power))
+      (:swing (list (+ x (* stroke/reach
+                            (if (eql dir/dir :right) 1 -1)))
+                    z r stroke/power))
       (t nil))))
