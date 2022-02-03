@@ -46,7 +46,19 @@
                                (* velocity/y -1 elastic/damp))))))
 
 
-(defun ball-hit (b power)
-  (setf (velocity/x b) (* -10 power)
-        (velocity/y b) (* 5 power)
-        (velocity/z b) (* -10 power)))
+(defun ball-hit (b hit-box)
+  (destructuring-bind (hx hz r p) hit-box
+    (with-slots ((bx loc/x) (bz loc/z) (br projection/r)) *b*
+      (when (check-collision-point-circle (make-vector2 :x hx :y hz)
+                                          (make-vector2 :x bx :y bz)
+                                          (+ r br))
+        (let* ((dz (- bz hz))
+               (dx (- bx hx))
+               (distance (sqrt (+ (* dz dz) (* dx dx))))
+               (dz-norm (/ dz distance))
+               (dx-norm (/ dx distance))
+               (vz (* 20 p dz-norm))
+               (vx (* 20 p dx-norm)))
+          (setf (velocity/x b) vx
+                (velocity/y b) (* 5 p)
+                (velocity/z b) vz))))))
