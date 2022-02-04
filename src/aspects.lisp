@@ -15,7 +15,8 @@
   (damp :type single-float))
 
 (define-aspect drag
-  (air :initform 0.0 :type single-float))
+  (air :initform 0.0 :type single-float)
+  (ground :initform 0.0 :type single-float))
 
 (define-aspect velocity
   (x :initform 0.0 :type :single-float)
