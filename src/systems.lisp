@@ -43,11 +43,13 @@
 
 
 (define-system draw-shape ((entity loc shape size))
-  (with-slots (loc/x loc/y loc/z shape/type shape/color size/h) entity
+  (with-slots (loc/x loc/y loc/z shape/type shape/color size/w size/h) entity
     (ecase shape/type
       (:sphere (draw-sphere (make-vector3 :x loc/x :y (+ loc/y (/ size/h 2)) :z loc/z)
                             size/h
-                            shape/color)))))
+                            shape/color))
+      (:cone (draw-cylinder (make-vector3 :x loc/x :y 0 :z loc/z)
+                            0.0 size/w size/h 10 shape/color)))))
 
 
 (define-system grounded ((entity loc bound))

@@ -54,3 +54,6 @@
 (define-aspect stroke
   (power :initform 1.0 :type :single-float)
   (reach :initform 2.0 :type :single-float))
+
+(define-aspect health
+  (hitpoint :initform 7 :type :integer))
