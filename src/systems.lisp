@@ -1,7 +1,7 @@
 (in-package #:tiebreak)
 
 
-(define-system draw-projection ((entity loc projection))
+(b:define-system draw-projection ((entity loc projection))
   (with-slots (loc/x loc/y loc/z projection/color projection/r) entity
     (drawcircle3d (make-vector3 :x loc/x :y 0 :z loc/z)
                     projection/r
@@ -25,7 +25,7 @@
                           (t +gray+)))))))
 
 
-(define-system draw-sprite ((entity loc sprite size))
+(b:define-system draw-sprite ((entity loc sprite size))
   (with-slots (loc/x loc/y loc/z
                sprite/w sprite/h sprite/row sprite/col sprite/texture
                size/w size/h)
@@ -52,7 +52,7 @@
                             0.0 size/w size/h 10 shape/color)))))
 
 
-(define-system grounded ((entity loc bound))
+(b:define-system grounded ((entity loc bound))
   (with-slots (loc/x loc/z bound/xmin bound/xmax bound/zmin bound/zmax)
       entity
     (if (elastic? entity)

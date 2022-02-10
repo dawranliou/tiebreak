@@ -7,32 +7,32 @@
 (defparameter +sprite-run-left+ 4)
 
 
-(define-entity player
+(b:define-entity player
     (loc bound velocity projection sprite size dir animation fsm stroke))
 
 
 (defun init-player (x z)
-  (create-entity 'player
-                 :loc/x x
-                 :loc/y 4.0
-                 :loc/z z
-                 :bound/xmin -30.0
-                 :bound/xmax 30.0
-                 :bound/zmin -40.0
-                 :bound/zmax 40.0
-                 :velocity/x 30.0
-                 :velocity/z 30.0
-                 :projection/color +gray+
-                 :projection/r 5.0
-                 :sprite/w 16
-                 :sprite/h 16
-                 :sprite/row 0
-                 :sprite/col 1
-                 :sprite/texture *player-texture*
-                 :size/w 8.0
-                 :size/h 8.0
-                 :dir/dir :right
-                 :fsm/state :idle))
+  (b:create-entity 'player
+                   :loc/x x
+                   :loc/y 4.0
+                   :loc/z z
+                   :bound/xmin -30.0
+                   :bound/xmax 30.0
+                   :bound/zmin -40.0
+                   :bound/zmax 40.0
+                   :velocity/x 30.0
+                   :velocity/z 30.0
+                   :projection/color +gray+
+                   :projection/r 5.0
+                   :sprite/w 16
+                   :sprite/h 16
+                   :sprite/row 0
+                   :sprite/col 1
+                   :sprite/texture *player-texture*
+                   :size/w 8.0
+                   :size/h 8.0
+                   :dir/dir :right
+                   :fsm/state :idle))
 
 
 (defun update-player (p dt)

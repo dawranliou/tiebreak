@@ -2,29 +2,29 @@
 
 (defparameter +gravity+ -30)
 
-(define-entity ball (loc velocity projection bound elastic drag shape size))
+(b:define-entity ball (loc velocity projection bound elastic drag shape size))
 
 (defun init-ball (x z vx vz)
-  (create-entity 'ball
-                 :loc/x x
-                 :loc/y 5
-                 :loc/z z
-                 :bound/xmin -30.0
-                 :bound/xmax 30.0
-                 :bound/zmin -40.0
-                 :bound/zmax 40.0
-                 :elastic/damp 0.8
-                 :drag/air 0.999
-                 :drag/ground 0.9
-                 :velocity/x vx
-                 :velocity/y 0.0
-                 :velocity/z vz
-                 :shape/type :sphere
-                 :shape/color +red+
-                 :size/w 2.0
-                 :size/h 2.0
-                 :projection/color +gray+
-                 :projection/r 2.0))
+  (b:create-entity 'ball
+                   :loc/x x
+                   :loc/y 5
+                   :loc/z z
+                   :bound/xmin -30.0
+                   :bound/xmax 30.0
+                   :bound/zmin -40.0
+                   :bound/zmax 40.0
+                   :elastic/damp 0.8
+                   :drag/air 0.999
+                   :drag/ground 0.9
+                   :velocity/x vx
+                   :velocity/y 0.0
+                   :velocity/z vz
+                   :shape/type :sphere
+                   :shape/color +red+
+                   :size/w 2.0
+                   :size/h 2.0
+                   :projection/color +gray+
+                   :projection/r 2.0))
 
 (defun update-ball (b dt)
   (with-slots (loc/x loc/y loc/z velocity/x velocity/y velocity/z

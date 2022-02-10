@@ -99,7 +99,7 @@
   (draw-heads-up-display))
 
 (defmethod unload-screen ((screen (eql :gameplay)))
-  (clear-entities))
+  (b:clear-entities))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ending screen
