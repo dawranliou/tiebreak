@@ -1,11 +1,11 @@
 # Tiebreak
 
-A tennis game powered by [raylib][1] and its Common Lisp binding [cl-raylib][2]
-through [cffi][3].
+A tennis game in Common Lisp powered by [raylib][1] through [cffi][3].
 
 ## Install
 
-1. Follow instructions on [cl-raylib][2]
+1. Install [raylib][1]
+2. Install [cffi][3]
 1. Clone this repo
 1. Load `:tiebreak`
 1. Run `tiebreak:main`
@@ -17,6 +17,11 @@ make build
 ```
 
 ## Devlog
+
+### 2022-02-10
+
+Drop dependency on [cl-raylib][2] because I want to learn more about how `cffi`
+works.  Thank you `cl-raylib` maintainers.
 
 ### 2022-02-02
 
