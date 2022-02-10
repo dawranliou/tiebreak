@@ -3,14 +3,14 @@
 
 (define-system draw-projection ((entity loc projection))
   (with-slots (loc/x loc/y loc/z projection/color projection/r) entity
-    (draw-circle-3d (make-vector3 :x loc/x :y 0 :z loc/z)
+    (drawcircle3d (make-vector3 :x loc/x :y 0 :z loc/z)
                     projection/r
                     (make-vector3 :x 1.0 :y 0.0 :z 0.0)
                     90.0
                     projection/color)
     (when (stroke? entity)
       (with-slots (stroke/power stroke/reach dir/dir) entity
-        (draw-circle-3d (make-vector3 :x (+ loc/x
+        (drawcircle3d (make-vector3 :x (+ loc/x
                                             (* stroke/reach
                                                (if (eql dir/dir :right) 1 -1)))
                                       :y 0
@@ -34,7 +34,7 @@
                                    :y (* sprite/w sprite/row)
                                    :width sprite/w
                                    :height sprite/h)))
-      (draw-billboard-rec *camera*
+      (drawbillboardrec *camera*
                           sprite/texture
                           src-rec
                           (make-vector3 :x loc/x :y loc/y :z loc/z)
@@ -42,13 +42,13 @@
                           +green+))))
 
 
-(define-system draw-shape ((entity loc shape size))
+(b:define-system draw-shape ((entity loc shape size))
   (with-slots (loc/x loc/y loc/z shape/type shape/color size/w size/h) entity
     (ecase shape/type
-      (:sphere (draw-sphere (make-vector3 :x loc/x :y (+ loc/y (/ size/h 2)) :z loc/z)
+      (:sphere (drawsphere (make-vector3 :x loc/x :y (+ loc/y (/ size/h 2)) :z loc/z)
                             size/h
                             shape/color))
-      (:cone (draw-cylinder (make-vector3 :x loc/x :y 0 :z loc/z)
+      (:cone (drawcylinder (make-vector3 :x loc/x :y 0 :z loc/z)
                             0.0 size/w size/h 10 shape/color)))))
 
 

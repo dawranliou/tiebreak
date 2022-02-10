@@ -52,9 +52,9 @@
 (defun ball-hit (b hit-box)
   (destructuring-bind (hx hz r p) hit-box
     (with-slots ((bx loc/x) (bz loc/z) (br projection/r)) *b*
-      (when (check-collision-point-circle (make-vector2 :x hx :y hz)
-                                          (make-vector2 :x bx :y bz)
-                                          (+ r br))
+      (when (checkcollisionpointcircle (make-vector2 :x hx :y hz)
+                                       (make-vector2 :x bx :y bz)
+                                       (+ r br))
         (let* ((dz (- bz hz))
                (dx (- bx hx))
                (distance (sqrt (+ (* dz dz) (* dx dx))))

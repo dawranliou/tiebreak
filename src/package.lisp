@@ -1,4 +1,4 @@
 (defpackage #:tiebreak
-  (:use #:cl #:cl-raylib #:beast)
-  (:export
-   #:main))
+  (:use #:cl #:beast)
+  (:local-nicknames (:c :cffi))
+  (:export #:main))

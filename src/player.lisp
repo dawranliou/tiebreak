@@ -38,12 +38,12 @@
 (defun update-player (p dt)
   ;; Update state
   (with-slots (loc/x loc/z animation/dt stroke/power) p
-    (let ((right-key-down (is-key-down +key-right+))
-          (left-key-down (is-key-down +key-left+))
-          (up-key-down (is-key-down +key-up+))
-          (down-key-down (is-key-down +key-down+))
-          (z-key-down (is-key-down +key-z+))
-          (z-key-released (is-key-released +key-z+)))
+    (let ((right-key-down (iskeydown +key-right+))
+          (left-key-down (iskeydown +key-left+))
+          (up-key-down (iskeydown +key-up+))
+          (down-key-down (iskeydown +key-down+))
+          (z-key-down (iskeydown +key-z+))
+          (z-key-released (iskeyreleased +key-z+)))
       (let ((move-p (or right-key-down left-key-down up-key-down down-key-down)))
         (case (fsm/state p)
           (:idle (cond

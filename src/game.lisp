@@ -21,13 +21,13 @@
   (setf *current-screen* :title)
   ;; Load assets
   (setf *player-texture*
-        (load-texture
+        (loadtexture
          (namestring (merge-pathnames "player.png" *assets-path*)))))
 
 
 (defun unload-game ()
   (when *player-texture*
-    (unload-texture *player-texture*)
+    (unloadtexture *player-texture*)
     (setf *player-texture* nil)))
 
 
@@ -35,12 +35,12 @@
   (with-window (+screen-width+ +screen-height+ "Tiebreak!")
     (init-game)
     (init-screen *current-screen*)
-    (set-target-fps 60)
-    (set-exit-key 0)                    ; Don't quit on ESC
+    (settargetfps 60)
+    (setexitkey 0)                    ; Don't quit on ESC
 
     (loop
-      (if (window-should-close) (return))
-      (update-screen *current-screen* (get-frame-time))
+      (if (windowshouldclose) (return))
+      (update-screen *current-screen* (getframetime))
       (with-drawing
         (draw-screen *current-screen*)))
 

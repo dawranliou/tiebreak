@@ -16,12 +16,14 @@
   :build-pathname "tiebreak"
   :entry-point "tiebreak:main"
 
-  :depends-on (:cl-raylib
+  :depends-on (#:cffi
+               #:cffi-libffi
                :beast)
   :serial t
   :components ((:module "src"
                 :serial t
                 :components ((:file "package")
+                             (:file "raylib")
                              (:file "aspects")
                              (:file "systems")
                              (:file "player")

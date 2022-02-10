@@ -35,13 +35,13 @@
 ;; title screen
 
 (defmethod update-screen ((screen (eql :title)) dt)
-  (when (is-key-pressed +key-enter+)
+  (when (iskeypressed +key-enter+)
     (setf *finish-screen* :gameplay)))
 
 (defmethod draw-screen ((screen (eql :title)))
-  (clear-background +black+)
-  (draw-text "TIEBREAK" 120 220 60 +raywhite+)
-  (draw-text "PRESS ENTER to START" 120 280 20 +raywhite+))
+  (clearbackground +black+)
+  (drawtext "TIEBREAK" 120 220 60 +raywhite+)
+  (drawtext "PRESS ENTER to START" 120 280 20 +raywhite+))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; gameplay screen
@@ -51,7 +51,7 @@
         *b* (init-ball 0 0 30 30)))
 
 (defmethod update-screen ((screen (eql :gameplay)) dt)
-  (when (is-key-pressed +key-enter+)
+  (when (iskeypressed +key-enter+)
     (setq *finish-screen* :ending))
 
   (update-player *p* dt)
@@ -65,20 +65,20 @@
   (run-grounded))
 
 (defun draw-court ()
-  (draw-plane (make-vector3 :x 0 :y -0.1 :z -20)
-              (make-vector2 :x 60 :y 40)
-              +lightgray+)
-  (draw-plane (make-vector3 :x 0 :y -0.1 :z 20)
-              (make-vector2 :x 60 :y 40)
-              +darkgray+))
+  (drawplane (make-vector3 :x 0 :y -0.1 :z -20)
+             (make-vector2 :x 60 :y 40)
+             +lightgray+)
+  (drawplane (make-vector3 :x 0 :y -0.1 :z 20)
+             (make-vector2 :x 60 :y 40)
+             +darkgray+))
 
 (defun draw-heads-up-display ()
-  (draw-fps 10 10)
-  (draw-text (format nil "~S - ~S" *player-score* *opponent-score*)
-             375 10 20 +raywhite+))
+  (drawfps 10 10)
+  (drawtext (format nil "~S - ~S" *player-score* *opponent-score*)
+            375 10 20 +raywhite+))
 
 (defmethod draw-screen ((screen (eql :gameplay)))
-  (clear-background +black+)
+  (clearbackground +black+)
 
   (with-slots (loc/x loc/z) *p*
     (let ((camera-pos (make-vector3 :x loc/x :y 50 :z 100))
@@ -88,7 +88,7 @@
                                     :target camera-target
                                     :up camera-up
                                     :fovy 30.0
-                                    :type +camera-perspective+))
+                                    :projection +camera-perspective+))
       (with-mode-3d (*camera*)
         (draw-court)
         (run-draw-shape)
@@ -105,12 +105,12 @@
 ;; ending screen
 
 (defmethod update-screen ((screen (eql :ending)) dt)
-  (when (is-key-pressed +key-enter+)
+  (when (iskeypressed +key-enter+)
     (setq *finish-screen* :title)))
 
 (defmethod draw-screen ((screen (eql :ending)))
-  (clear-background +black+)
-  (draw-text "GAME OVER" 120 220 20 +raywhite+))
+  (clearbackground +black+)
+  (drawtext "GAME OVER" 120 220 20 +raywhite+))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; transition
@@ -145,11 +145,11 @@
                 *trans-to-screen* -1)))))
 
 (defun draw-transition ()
-  (draw-rectangle 0
-                  0
-                  (get-screen-width)
-                  (get-screen-height)
-                  (fade +black+ *trans-alpha*)))
+  (drawrectangle 0
+                 0
+                 (getscreenwidth)
+                 (getscreenheight)
+                 (fade +black+ *trans-alpha*)))
 
 (defmethod update-screen :around (screen dt)
   (if *on-transition-p*
