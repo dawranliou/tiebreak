@@ -48,11 +48,23 @@
 
 (defmethod init-screen :after ((screen (eql :gameplay)))
   (setf *p* (init-player 18 40)
-        *b* (init-ball 0 0 30 30)))
+        *b* (init-ball 0 0 30 30))
+  (let ((camera-pos (make-vector3 :x 18 :y 50 :z 100))
+        (camera-target (make-vector3 :x 18 :y 0 :z 0))
+        (camera-up (make-vector3 :x 0.0 :y 1.0 :z 0)))
+    (setf *camera* (make-camera3d :position camera-pos
+                                  :target camera-target
+                                  :up camera-up
+                                  :fovy 30.0
+                                  :projection +camera-perspective+))))
 
 (defmethod update-screen ((screen (eql :gameplay)) dt)
   (when (iskeypressed +key-enter+)
     (setq *finish-screen* :ending))
+
+  (with-slots (loc/x) *p*
+    (setf (vector3-x (camera3d-position *camera*)) loc/x
+          (vector3-x (camera3d-target *camera*)) loc/x))
 
   (update-player *p* dt)
 
@@ -80,20 +92,11 @@
 (defmethod draw-screen ((screen (eql :gameplay)))
   (clearbackground +black+)
 
-  (with-slots (loc/x loc/z) *p*
-    (let ((camera-pos (make-vector3 :x loc/x :y 50 :z 100))
-          (camera-target (make-vector3 :x loc/x :y 0 :z 0))
-          (camera-up (make-vector3 :x 0.0 :y 1.0 :z 0)))
-      (setf *camera* (make-camera3d :position camera-pos
-                                    :target camera-target
-                                    :up camera-up
-                                    :fovy 30.0
-                                    :projection +camera-perspective+))
-      (with-mode-3d (*camera*)
-        (draw-court)
-        (run-draw-shape)
-        (run-draw-sprite)
-        (run-draw-projection))))
+  (with-mode-3d (*camera*)
+    (draw-court)
+    (run-draw-shape)
+    (run-draw-sprite)
+    (run-draw-projection))
 
   ;; Heads-up display
   (draw-heads-up-display))
