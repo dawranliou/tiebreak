@@ -29,5 +29,4 @@
                              (:file "player")
                              (:file "ball")
                              (:file "cone")
-                             (:file "screens")
                              (:file "game")))))
