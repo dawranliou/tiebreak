@@ -24,4 +24,4 @@
                 :serial t
                 :components ((:file "package")
                              (:file "raylib")
-                             (:file "game")))))
+                             (:file "main")))))
