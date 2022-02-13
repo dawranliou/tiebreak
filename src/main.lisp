@@ -152,7 +152,7 @@ a list of bindings."
           (r (* size/w 0.5)))
       (drawtexturepro *player-texture*
                       src-rec
-                      (make-rectangle :x (- loc/x r)
+                      (make-rectangle :x (- loc/x r 5)
                                       :y (- loc/y size/h)
                                       :width size/w
                                       :height size/h)
