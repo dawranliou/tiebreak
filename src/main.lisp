@@ -13,6 +13,29 @@
                     forms))
      <>))
 
+(defmacro if-let (bindings &body (then-form &optional else-form))
+  "Creates new variable bindings, and conditionally executes either THEN-FORM or
+ELSE-FORM. ELSE-FORM defaults to NIL.  BINDINGS can be a single binding list or
+a list of bindings."
+  (let* ((binding-list (if (and (consp bindings) (symbolp (car bindings)))
+                           (list bindings)
+                           bindings))
+         (variables (mapcar #'car binding-list)))
+    `(let ,binding-list
+       (if (and ,@variables)
+           ,then-form
+           ,else-form))))
+
+(defmacro when-let (bindings &body body)
+  "Creates new variable bindings, and conditionally executes BODY."
+  (let* ((binding-list (if (and (consp bindings) (symbolp (car bindings)))
+                           (list bindings)
+                           bindings))
+         (variables (mapcar #'car binding-list)))
+    `(let ,binding-list
+       (when (and ,@variables)
+         ,@body))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; CONSTANTS
@@ -306,9 +329,8 @@
 (defmethod update ((screen (eql :gameplay-screen)) dt)
   (when (iskeypressed +key-enter+)
     (setq *finish-screen* :title-screen))
-  (let ((hit-box (player-hit-box *p*)))
-    (when hit-box
-      (ball-hit *b* hit-box)))
+  (when-let ((hit-box (player-hit-box *p*)))
+    (ball-hit *b* hit-box))
   (update *p* dt)
   (update *b* dt))
 
