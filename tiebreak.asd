@@ -24,9 +24,4 @@
                 :serial t
                 :components ((:file "package")
                              (:file "raylib")
-                             (:file "aspects")
-                             (:file "systems")
-                             (:file "player")
-                             (:file "ball")
-                             (:file "cone")
                              (:file "game")))))

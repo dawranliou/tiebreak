@@ -89,53 +89,37 @@
   (c:with-foreign-slots ((x y z) pointer (:struct %vector3))
     (make-vector3 :x x :y y :z z)))
 
-(c:defcstruct (%camera3d :class camera3d-type)
-  "Camera type, defines a camera position/orientation in 3d space"
-  (position (:struct %vector3))
-  (target (:struct %vector3))
-  (up (:struct %vector3))
-  (fovy :float)
-  (projection :int))
+(c:defcstruct (%camera2d :class camera2d-type)
+  "Camera2D type, defines a 2d camera"
+  (offset (:struct %vector2))
+  (target (:struct %vector2))
+  (rotation :float)
+  (zoom :float))
 
-(defstruct camera3d
-  position target up fovy projection)
+(defstruct camera2d
+  offset target rotation zoom)
 
-(defmethod c:translate-into-foreign-memory (object (type camera3d-type) pointer)
-  (c:with-foreign-slots ((fovy projection) pointer (:struct %camera3d))
-    (c:convert-into-foreign-memory (camera3d-position object)
-                                   '(:struct %vector3)
-                                   (c:foreign-slot-pointer pointer
-                                                           '(:struct %camera3d)
-                                                           'position))
-    (c:convert-into-foreign-memory (camera3d-target object)
-                                   '(:struct %vector3)
-                                   (c:foreign-slot-pointer pointer
-                                                           '(:struct %camera3d)
-                                                           'target))
-    (c:convert-into-foreign-memory (camera3d-up object)
-                                   '(:struct %vector3)
-                                   (c:foreign-slot-pointer pointer
-                                                           '(:struct %camera3d)
-                                                           'up))
-    (setf fovy (coerce (camera3d-fovy object) 'float)
-          projection (camera3d-projection object))))
+(defmethod c:translate-into-foreign-memory (object (type camera2d-type) pointer)
+  (c:with-foreign-slots ((rotation zoom) pointer (:struct %camera2d))
+    (c:convert-into-foreign-memory (camera2d-offset object)
+                                   '(:struct %vector2)
+                                   (c:foreign-slot-pointer pointer '(:struct %camera2d) 'offset))
+    (c:convert-into-foreign-memory (camera2d-target object)
+                                   '(:struct %vector2)
+                                   (c:foreign-slot-pointer pointer '(:struct %camera2d) 'target))
+    (setf rotation (coerce (camera2d-rotation object) 'float))
+    (setf zoom (coerce (camera2d-zoom object) 'float))))
 
-(defmethod c:translate-from-foreign (pointer (type camera3d-type))
-  (c:with-foreign-slots ((position target up fovy projection) pointer (:struct %camera3d))
-    (let ((px (c:foreign-slot-value position '(:struct %vector3) 'x))
-          (py (c:foreign-slot-value position '(:struct %vector3) 'y))
-          (pz (c:foreign-slot-value position '(:struct %vector3) 'z))
-          (tx (c:foreign-slot-value target '(:struct %vector3) 'x))
-          (ty (c:foreign-slot-value target '(:struct %vector3) 'y))
-          (tz (c:foreign-slot-value target '(:struct %vector3) 'z))
-          (ux (c:foreign-slot-value up '(:struct %vector3) 'x))
-          (uy (c:foreign-slot-value up '(:struct %vector3) 'y))
-          (uz (c:foreign-slot-value up '(:struct %vector3) 'z)))
-      (make-camera3d :position (make-vector3 :x px :y py :z pz)
-                     :target (make-vector3 :x tx :y ty :z tz)
-                     :up (make-vector3 :x ux :y uy :z uz)
-                     :fovy fovy
-                     :projection projection))))
+(defmethod c:translate-from-foreign (pointer (type camera2d-type))
+  (c:with-foreign-slots ((offset target rotation zoom) pointer (:struct %camera2d))
+    (let ((ox (c:foreign-slot-value offset '(:struct %vector2) 'x))
+          (oy (c:foreign-slot-value offset '(:struct %vector2) 'y))
+          (tx (c:foreign-slot-value target '(:struct %vector2) 'x))
+          (ty (c:foreign-slot-value target '(:struct %vector2) 'y)))
+      (make-camera2d :offset (make-vector2 :x ox :y oy)
+                     :target (make-vector2 :x tx :y ty)
+                     :rotation rotation
+                     :zoom zoom))))
 
 (c:defcstruct (%rectangle :class rectangle-type)
   "Rectangle type"
@@ -190,6 +174,46 @@
   (font-size :int)
   (color (:struct %color)))
 
+(c:defcfun "DrawRectangleLines" :void
+  "Draw rectangle outline"
+  (pos-x :int)
+  (pos-y :int)
+  (width :int)
+  (height :int)
+  (color (:struct %color)))
+
+(c:defcfun "DrawRectangleRounded" :void
+  "Draw rectangle with rounded edges"
+  (rec (:struct %rectangle))
+  (roundness :float)
+  (segments :int)
+  (color (:struct %color)))
+
+(c:defcfun "DrawRectangle" :void
+  "Draw a color-filled rectangle"
+  (pos-x :int)
+  (pos-y :int)
+  (width :int)
+  (height :int)
+  (color (:struct %color)))
+
+(c:defcfun "DrawEllipse" :void
+  "Draw ellipse"
+  (center-x :int)
+  (center-y :int)
+  (radius-h :float)
+  (radius-v :float)
+  (color (:struct %color)))
+
+(c:defcfun "DrawTexturePro" :void
+  "Draw a part of a texture defined by a rectangle with 'pro' parameters"
+  (texture (:struct %texture))
+  (source-rec (:struct %rectangle))
+  (dest-rec (:struct %rectangle))
+  (origin (:struct %vector2))
+  (rotation :float)
+  (tint (:struct %color)))
+
 (c:defcfun "LoadTexture" (:struct %texture)
   "Load texture from file into GPU memory (VRAM)"
   (file-name :string))
@@ -213,13 +237,6 @@
   "Detect if a key has been pressed once"
   (key :int))
 
-(c:defcfun "BeginMode3D" :void
-  "Initializes 3D mode with custom camera (3D)"
-  (camera (:struct %camera3d)))
-
-(c:defcfun "EndMode3D" :void
-  "Ends 3D mode and returns to default 2D orthographic mode")
-
 (c:defcfun "DrawFPS" :void
   "Shows current FPS"
   (pos-x :int)
@@ -235,14 +252,6 @@
 
 (c:defcfun "GetScreenHeight" :int
   "Get current screen height")
-
-(c:defcfun "DrawRectangle" :void
-  "Draw a color-filled rectangle"
-  (pos-x :int)
-  (pos-y :int)
-  (width :int)
-  (height :int)
-  (color (:struct %color)))
 
 (c:defcfun "Fade" (:struct %color)
   "Color fade-in or fade-out, alpha goes from 0.0f to 1.0f"
@@ -262,20 +271,19 @@
   "Detect if a key has been released once"
   (key :int))
 
+(c:defcfun "DrawCircle" :void
+  "Draw a color-filled circle"
+  (center-x :int)
+  (center-y :int)
+  (radius :float)
+  (color (:struct %color)))
+
 (c:defcfun "DrawCircle3D" :void
   (position (:struct %vector3))
   (radius :float)
   (rotation-axis (:struct %vector3))
   (rotation-angle :float)
   (color (:struct %color)))
-
-(c:defcfun "DrawBillboardRec" :void
-  (camera (:struct %camera3d))
-  (texture (:struct %texture))
-  (source-rec (:struct %rectangle))
-  (center (:struct %vector3))
-  (size (:struct %vector2))
-  (tint (:struct %color)))
 
 (c:defcfun "DrawSphere" :void
   "Draw sphere"
@@ -291,6 +299,9 @@
   (slices :int)
   (color (:struct %color)))
 
+(c:defcfun "SetWindowSize" :void
+  (width :int)
+  (height :int))
 
 ;; macros
 
@@ -303,11 +314,6 @@
   `(progn (begindrawing)
           (unwind-protect (progn ,@body)
             (enddrawing))))
-
-(defmacro with-mode-3d ((camera) &body body)
-  `(progn (beginmode3d ,camera)
-          (unwind-protect (progn ,@body)
-            (endmode3d))))
 
 ;; constants
 
