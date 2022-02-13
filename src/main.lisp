@@ -2,6 +2,45 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; CONSTANTS
+(defparameter +screen-width+ 600)
+(defparameter +screen-height+ 800)
+(defparameter +court-min-x+ 100)
+(defparameter +court-min-y+ 100)
+(defparameter +court-max-x+ 500)
+(defparameter +court-max-y+ 700)
+(defparameter +court-width+ 400)
+(defparameter +court-height+ 600)
+(defparameter +player-v+ 200)
+(defparameter +drag-air+ 0.999)
+(defparameter +drag-ground+ 0.9)
+(defparameter +elastic-damp+ 0.8)
+(defparameter +gravity+ -300)
+
+(defparameter +sprite-idle+ 0)
+(defparameter +sprite-fh-swing+ 1)
+(defparameter +sprite-bh-swing+ 2)
+(defparameter +sprite-run-right+ 3)
+(defparameter +sprite-run-left+ 4)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; GLOBALS
+(defvar *trans-alpha* 0.0)
+(defvar *on-transition-p* nil)
+(defvar *trans-fade-out-p* nil)
+(defvar *trans-from-screen* nil)
+(defvar *trans-to-screen* nil)
+(defvar *finish-screen* nil)
+(defvar *player-score* 0)
+(defvar *opponent-score* 0)
+(defvar *player-texture* nil)
+(defvar *p* nil)
+(defvar *b* nil)
+(defvar *current-screen* nil)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; MACROS
 (defmacro -<> (expr &rest forms)
   "Thread the given forms, with `<>` as a placeholder."
@@ -38,37 +77,17 @@ a list of bindings."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; CONSTANTS
-(defparameter +screen-width+ 600)
-(defparameter +screen-height+ 800)
-(defparameter +player-v+ 200)
-(defparameter +drag-air+ 0.999)
-(defparameter +drag-ground+ 0.9)
-(defparameter +elastic-damp+ 0.8)
-(defparameter +gravity+ -300)
+;;; UTILITY FUNCTIONS
+(defun clamp (min max value)
+  (cond ((<= value min) min)
+        ((<= max value) max)
+        (t value)))
 
-(defparameter +sprite-idle+ 0)
-(defparameter +sprite-fh-swing+ 1)
-(defparameter +sprite-bh-swing+ 2)
-(defparameter +sprite-run-right+ 3)
-(defparameter +sprite-run-left+ 4)
+(defun in-court-x (value)
+  (clamp +court-min-x+ +court-max-x+ value))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; GLOBALS
-(defvar *trans-alpha* 0.0)
-(defvar *on-transition-p* nil)
-(defvar *trans-fade-out-p* nil)
-(defvar *trans-from-screen* nil)
-(defvar *trans-to-screen* nil)
-(defvar *finish-screen* nil)
-(defvar *player-score* 0)
-(defvar *opponent-score* 0)
-(defvar *player-texture* nil)
-(defvar *p* nil)
-(defvar *b* nil)
-(defvar *current-screen* nil)
-
+(defun in-court-y (value)
+  (clamp +court-min-y+ +court-max-y+ value))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; GENERICS
@@ -189,7 +208,7 @@ a list of bindings."
                    (cond
                      (z-key-released (setf state :swing
                                            timer 0.0))
-                     (z-key-down (setf power (min (+ power (* dt 5))
+                     (z-key-down (setf power (min (+ power (* dt 1000))
                                                   300.0))))))
           (:swing (if (< timer 0.4)
                       (setf timer (+ timer dt))
@@ -225,7 +244,8 @@ a list of bindings."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; BALL ENTITY
-(b:define-entity ball (renderable loc v size))
+(b:define-entity ball (renderable loc v size)
+  (g :initform +gravity+))
 
 (defun init-ball (x y vx vy)
   (b:create-entity 'ball
@@ -240,34 +260,41 @@ a list of bindings."
                 r +raywhite+))))
 
 (defmethod update ((b ball) dt)
-  ;; Positions
-  (with-slots (loc/x loc/y loc/z v/x v/y v/z size/h) b
-    (setf loc/x (+ loc/x (* v/x dt))
-          loc/y (+ loc/y (* v/y dt))
-          loc/z (+ loc/z (* v/z dt))))
-  ;; Velocities
-  (with-slots (loc/x loc/y loc/z size/h v/x v/y v/z) b
-    (let ((bounce-x? (or (<= loc/x 100) (<= 500 loc/x)))
-          (bounce-y? (or (<= loc/y 100) (<= 700 loc/y)))
-          (bounce-z? (<= loc/z 0.1)))
-      ;; (when bounce? (setf loc/z 0.0))
-      (setf v/x (* (if (< (abs v/x) 1) 0.0 v/x)
-                   (if bounce-x? -1 1)
-                   +drag-air+
-                   (if bounce-z? +drag-ground+ 1.0))
-            v/y (* (if (< (abs v/y) 1) 0.0 v/y)
-                   (if bounce-y? -1 1)
-                   +drag-air+
-                   (if bounce-z? +drag-ground+ 1.0))
-            v/z (if bounce-z?
-                    (* (if (< (abs v/z) 1) 0.0 v/z)
-                       -1
-                       +elastic-damp+)
-                    (+ v/z (* +gravity+ dt)))))))
+  (with-slots (loc/x loc/y loc/z v/x v/y v/z g) b
+    ;;(drawtext (format nil "V/X ~S" v/x) 100 100 20 +raywhite+)
+    (let* ((target-x (+ loc/x (* v/x dt)))
+           (target-y (+ loc/y (* v/y dt)))
+           (target-z (+ loc/z (* v/z dt)))
+           (target-vx (* v/x +drag-air+))
+           (target-vy (* v/y +drag-air+))
+           (target-vz (+ v/z (* g dt)))
+           (bounce-x? (or (<= target-x +court-min-x+)
+                          (<= +court-max-x+ target-y)))
+           (bounce-y? (or (<= target-y +court-min-y+)
+                          (<= +court-max-y+ target-y)))
+           (bounce-z? (<= loc/z 0.1))
+           (stopped-x? (< (abs v/x) 0.1))
+           (stopped-y? (< (abs v/y) 0.1))
+           (stopped-z? (and bounce-z? (< (abs target-vz) 1))))
+      (drawtext (format nil "BOUNCE ~S" bounce-z?) 100 110 20 +raywhite+)
+      (drawtext (format nil "STOPPED ~S" stopped-z?) 100 130 20 +raywhite+)
+      (setf loc/x (in-court-x target-x)
+            loc/y (in-court-y target-y)
+            loc/z (if stopped-z? 0.0 target-z)
+            v/x (cond (stopped-x? 0.0)
+                      (bounce-x? (* -1 target-vx +elastic-damp+))
+                      (t (if stopped-z? (* target-vx +drag-ground+) target-vx)))
+            v/y (cond (stopped-y? 0.0)
+                      (bounce-y? (* -1 target-vy +elastic-damp+))
+                      (t (if stopped-z? (* target-vy +drag-ground+) target-vy)))
+            v/z (cond (stopped-z? 0.0)
+                      (bounce-z? (* -1 target-vz +elastic-damp+))
+                      (t target-vz))
+            g (if stopped-z? 0.0 +gravity+)))))
 
 (defun ball-hit (b hit-box)
   (destructuring-bind (hx hy hr p) hit-box
-    (with-slots ((bx loc/x) (by loc/y) (br size/w)) *b*
+    (with-slots ((bx loc/x) (by loc/y) (br size/w) g) *b*
       (when (checkcollisionpointcircle (make-vector2 :x hx :y hy)
                                        (make-vector2 :x bx :y by)
                                        (+ hr br))
@@ -280,7 +307,8 @@ a list of bindings."
                (vx (* p dx-norm)))
           (setf (v/x b) vx
                 (v/y b) vy
-                (v/z b) (* 1 p)))))))
+                (v/z b) 100.0
+                g +gravity+))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -335,8 +363,13 @@ a list of bindings."
   (update *b* dt))
 
 (defun draw-court ()
-  (drawrectanglelines 100 100 400 300 +lightgray+)
-  (drawrectanglelines 100 400 400 300 +lightgray+))
+  (let ((half-height (floor (* 1/2 +court-height+))))
+    (drawrectanglelines +court-min-x+ +court-min-y+
+                        +court-width+ half-height
+                        +lightgray+)
+    (drawrectanglelines +court-min-x+ (+ +court-min-y+ half-height)
+                        +court-width+ half-height
+                        +lightgray+)))
 
 (defun draw-heads-up-display ()
   (drawfps 520 10)
