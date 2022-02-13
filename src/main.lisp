@@ -36,6 +36,8 @@
 (defvar *opponent-score* 0)
 (defvar *player-texture* nil)
 (defvar *p* nil)
+(defvar *input* nil)
+(defvar *hit-box* nil)
 (defvar *b* nil)
 (defvar *current-screen* nil)
 
@@ -93,13 +95,21 @@ a list of bindings."
 ;;; GENERICS
 (defgeneric init (thing))
 (defgeneric unload (thing))
+(defgeneric handle-input (thing dt))
 (defgeneric update (thing dt))
 (defgeneric render (thing))
 
+;; Defaults
 (defmethod init (thing)
   (setf *finish-screen* nil))
 
 (defmethod unload (thing))
+
+(defmethod handle-input (thing dt))
+
+(defmethod update (thing dt))
+
+(defmethod render (thing))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -169,63 +179,67 @@ a list of bindings."
                       0.0
                       +raywhite+))))
 
-(defmethod update ((p player) dt)
-  ;; Update state
-  (with-slots (loc/x loc/y timer power state dir) p
-    (let ((right-key-down (iskeydown +key-right+))
-          (left-key-down (iskeydown +key-left+))
-          (up-key-down (iskeydown +key-up+))
-          (down-key-down (iskeydown +key-down+))
-          (z-key-down (iskeydown +key-z+))
-          (z-key-released (iskeyreleased +key-z+)))
-      (let ((move-p (or right-key-down left-key-down up-key-down down-key-down)))
-        (case state
-          (:idle (cond
-                   (z-key-down (setf state :load
-                                     timer 0.0))
-                   (move-p (setf state :move
-                                 timer 0.0))
-                   (t (setf timer (if (< dt 0.8)
-                                   (+ timer dt)
-                                   0.0)))))
-          (:move (cond
-                   (z-key-down (setf state :load
-                                     timer 0.0))
-                   (move-p (setf timer (if (< timer 0.8)
-                                           (+ timer dt)
-                                           0.0)
-                                 dir (cond
-                                       (right-key-down :right)
-                                       (left-key-down :left)
-                                       (up-key-down :right)
-                                       (down-key-down :left))
-                                 loc/x (+ (* +player-v+
-                                             dt
-                                             (+ (if right-key-down 1 0)
-                                                (if left-key-down -1 0)))
-                                          loc/x)
-                                 loc/y (+ (* +player-v+
-                                             dt
-                                             (+ (if up-key-down -1 0)
-                                                (if down-key-down 1 0)))
-                                          loc/y)))
-                   (t (setf state :idle
-                            timer 0.0))))
-          (:load (progn
-                   (when right-key-down (setf dir :right))
-                   (when left-key-down (setf dir :left))
-                   (cond
-                     (z-key-released (setf state :swing
-                                           timer 0.0))
-                     (z-key-down (setf power (min (+ power (* dt 1000))
-                                                  300.0))))))
-          (:swing (if (< timer 0.4)
-                      (setf timer (+ timer dt))
-                      (setf state :idle
-                            power 1.0
-                            timer 0.0)))))))
+(defun player-hit-box (p)
+  (with-slots (loc/x loc/y size/w power state) p
+    (let ((r (* 1/2 size/w)))
+      (case state
+        (:swing (list loc/x (- loc/y r) (* r 3/2) power))
+        (t nil)))))
 
-  ;; update animation
+(defun handle-player-action (p dt
+                             right-key-down left-key-down up-key-down
+                             down-key-down z-key-down z-key-released)
+  (with-slots (loc/x loc/y timer power state dir) p
+    (let ((move-p (or right-key-down left-key-down up-key-down down-key-down)))
+      (case state
+        (:idle (cond
+                 (z-key-down (setf state :load
+                                   timer 0.0))
+                 (move-p (setf state :move
+                               timer 0.0))
+                 (t (setf timer (if (< dt 0.8)
+                                    (+ timer dt)
+                                    0.0)))))
+        (:move (cond
+                 (z-key-down (setf state :load
+                                   timer 0.0))
+                 (move-p (setf timer (if (< timer 0.8)
+                                         (+ timer dt)
+                                         0.0)
+                               dir (cond
+                                     (right-key-down :right)
+                                     (left-key-down :left)
+                                     (up-key-down :right)
+                                     (down-key-down :left))
+                               loc/x (+ (* +player-v+
+                                           dt
+                                           (+ (if right-key-down 1 0)
+                                              (if left-key-down -1 0)))
+                                        loc/x)
+                               loc/y (+ (* +player-v+
+                                           dt
+                                           (+ (if up-key-down -1 0)
+                                              (if down-key-down 1 0)))
+                                        loc/y)))
+                 (t (setf state :idle
+                          timer 0.0))))
+        (:load (progn
+                 (when right-key-down (setf dir :right))
+                 (when left-key-down (setf dir :left))
+                 (cond
+                   (z-key-released (setf state :swing
+                                         timer 0.0
+                                         *hit-box* (player-hit-box p)))
+                   (z-key-down (setf power 300.0 #+nil(min (+ 100.0 (* power dt 10))
+                                                300.0))))))
+        (:swing (if (< timer 0.4)
+                    (setf timer (+ timer dt))
+                    (setf state :idle
+                          power 1.0
+                          timer 0.0
+                          *hit-box* nil)))))))
+
+(defmethod update ((p player) dt)
   (with-slots (dir state sprite-row sprite-col timer) p
     (let ((face-right-p (equal :right dir)))
       (case state
@@ -243,12 +257,6 @@ a list of bindings."
                                      +sprite-fh-swing+
                                      +sprite-bh-swing+)
                       sprite-col (1+ (floor timer 0.1))))))))
-
-(defun player-hit-box (p)
-  (with-slots (loc/x loc/y size/w power state) p
-    (case state
-      (:swing (list loc/x loc/y size/w power))
-      (t nil))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -286,7 +294,7 @@ a list of bindings."
            (stopped-y? (< (abs v/y) 1))
            (stopped-z? (and bounce-z? (< (abs target-vz) 1))))
       ;;(drawtext (format nil "BOUNCE ~S" bounce-z?) 100 110 20 +raywhite+)
-      (drawtext (format nil "STOPPED ~S" stopped-x?) 100 130 20 +raywhite+)
+      ;;(drawtext (format nil "STOPPED ~S" stopped-x?) 100 130 20 +raywhite+)
       (setf loc/x (in-court-x target-x)
             loc/y (in-court-y target-y)
             loc/z (if stopped-z? 0.0 target-z)
@@ -303,7 +311,7 @@ a list of bindings."
 
 (defun ball-hit (b hit-box)
   (destructuring-bind (hx hy hr p) hit-box
-    (with-slots ((bx loc/x) (by loc/y) (br size/w) g) *b*
+    (with-slots ((bx loc/x) (by loc/y) (br size/w) g) b
       (when (checkcollisionpointcircle (make-vector2 :x hx :y hy)
                                        (make-vector2 :x bx :y by)
                                        (+ hr br))
@@ -347,7 +355,7 @@ a list of bindings."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; TITLE SCREEN
-(defmethod update ((thing (eql :title-screen)) dt)
+(defmethod handle-input ((thing (eql :title-screen)) dt)
   (when (iskeypressed +key-enter+)
     (setf *finish-screen* :gameplay-screen)))
 
@@ -363,13 +371,23 @@ a list of bindings."
   (setf *p* (init-player 450 650))
   (setf *b* (init-ball 440 620 0.0 0.0)))
 
-(defmethod update ((screen (eql :gameplay-screen)) dt)
+(defmethod handle-input ((screen (eql :gameplay-screen)) dt)
   (when (iskeypressed +key-enter+)
     (setq *finish-screen* :title-screen))
-  (when-let ((hit-box (player-hit-box *p*)))
-    (ball-hit *b* hit-box))
+  (handle-player-action *p* dt
+                        (iskeydown +key-right+)
+                        (iskeydown +key-left+)
+                        (iskeydown +key-up+)
+                        (iskeydown +key-down+)
+                        (iskeydown +key-z+)
+                        (iskeyreleased +key-z+)))
+
+(defmethod update ((screen (eql :gameplay-screen)) dt)
+  (when *hit-box*
+    (ball-hit *b* *hit-box*))
   (update *p* dt)
-  (update *b* dt))
+  (update *b* dt)
+  (run-destroy-dead))
 
 (defun draw-court ()
   (let ((half-height (floor (* 1/2 +court-height+))))
@@ -390,6 +408,9 @@ a list of bindings."
   (draw-court)
   (run-draw-shadow)
   (run-draw-renderable)
+  (when *hit-box*
+    (destructuring-bind (hx hy hr p) *hit-box*
+      (drawcirclelines (floor hx) (floor hy) hr +red+)))
   (draw-heads-up-display))
 
 (defmethod unload ((screen (eql :gameplay-screen)))
@@ -467,6 +488,7 @@ a list of bindings."
     (unwind-protect
          (loop
            (if (windowshouldclose) (return))
+           (handle-input *current-screen* (getframetime))
            (update *current-screen* (getframetime))
            (with-drawing
              (render *current-screen*)))
