@@ -118,6 +118,9 @@ a list of bindings."
   (w :initform 0.0 :type :single-float)
   (h :initform 0.0 :type :single-float))
 
+(b:define-aspect life
+  hp time bound-x bound-y bound-z)
+
 (b:define-system draw-shadow ((entity loc size))
   (with-slots (loc/x loc/y size/w size/h) entity
     (drawellipse (floor loc/x) (floor loc/y) (/ size/w 2) 4.0 +gray+)))
@@ -126,6 +129,12 @@ a list of bindings."
 
 (b:define-system draw-renderable ((entity renderable))
   (render entity))
+
+(b:define-system destroy-dead ((entity life))
+  (with-slots (life/hp life/time) entity
+    (cond
+      ((and life/hp (zerop life/hp)) (b:destroy-entity entity))
+      ((and life/time (< life/time 0)) (b:destroy-entity entity)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
