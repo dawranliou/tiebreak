@@ -278,6 +278,13 @@
   (radius :float)
   (color (:struct %color)))
 
+(c:defcfun "DrawCircleLines" :void
+  "Draw circle outline"
+  (center-x :int)
+  (center-y :int)
+  (radius :float)
+  (color (:struct %color)))
+
 (c:defcfun "DrawCircle3D" :void
   (position (:struct %vector3))
   (radius :float)
