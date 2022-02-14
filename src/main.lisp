@@ -115,8 +115,8 @@ a list of bindings."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; ASPECTS
 (b:define-aspect loc
-  (x :initform 0.0 :type :single-float)
-  (y :initform 0.0 :type :single-float)
+  (x :type :single-float)
+  (y :type :single-float)
   (z :initform 0.0 :type :single-float))
 
 (b:define-aspect v
@@ -125,11 +125,12 @@ a list of bindings."
   (z :initform 0.0 :type :single-float))
 
 (b:define-aspect size
-  (w :initform 0.0 :type :single-float)
-  (h :initform 0.0 :type :single-float))
+  (w :type :single-float)
+  (h :type :single-float))
 
 (b:define-aspect life
-  hp time bound-x bound-y bound-z)
+  (hp :initform nil)
+  (time :initform nil))
 
 (b:define-system draw-shadow ((entity loc size))
   (with-slots (loc/x loc/y size/w size/h) entity
