@@ -285,6 +285,20 @@
   (radius :float)
   (color (:struct %color)))
 
+(c:defcfun "DrawTriangle" :void
+  "Draw a color-filled triangle"
+  (v1 (:struct %vector2))
+  (v2 (:struct %vector2))
+  (v3 (:struct %vector2))
+  (color (:struct %color)))
+
+(c:defcfun "DrawTriangleLines" :void
+  "Draw triangle outline"
+  (v1 (:struct %vector2))
+  (v2 (:struct %vector2))
+  (v3 (:struct %vector2))
+  (color (:struct %color)))
+
 (c:defcfun "DrawCircle3D" :void
   (position (:struct %vector3))
   (radius :float)
