@@ -147,6 +147,14 @@ a list of bindings."
       ((and life/hp (zerop life/hp)) (b:destroy-entity entity))
       ((and life/time (< life/time 0)) (b:destroy-entity entity)))))
 
+(b:define-system check-hit ((entity loc life))
+  (with-slots (loc/x loc/y life/hp) entity
+    (with-slots ((bx loc/x) (by loc/y) (br size/w)) *b*
+      (when (checkcollisionpointcircle (make-vector2 :x loc/x :y loc/y)
+                                       (make-vector2 :x bx :y by)
+                                       br)
+        (decf life/hp)))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; PLAYER ENTITY
@@ -330,6 +338,24 @@ a list of bindings."
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TARGET ENTITY
+(b:define-entity cone (loc size renderable life))
+
+(defun init-cone (x y)
+  (b:create-entity 'cone
+                   :loc/x x :loc/y y
+                   :size/h 20.0 :size/w 20.0
+                   :life/hp 1))
+
+(defmethod render ((c cone))
+  (with-slots (loc/x loc/y size/h size/w life/hp) c
+    (drawtriangle (make-vector2 :x loc/x :y (- loc/y size/h))
+                  (make-vector2 :x (- loc/x (* 1/2 size/w)) :y loc/y)
+                  (make-vector2 :x (+ loc/x (* 1/2 size/w)) :y loc/y)
+                  +raywhite+)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; ASSETS
 (defun asset-path (filename)
   (namestring (merge-pathnames filename
@@ -370,7 +396,9 @@ a list of bindings."
 ;;; GAMEPLAY SCREEN
 (defmethod init :after ((screen (eql :gameplay-screen)))
   (setf *p* (init-player 450 650))
-  (setf *b* (init-ball 440 620 0.0 0.0)))
+  (setf *b* (init-ball 440 620 0.0 0.0))
+  (init-cone 150 150)
+  (init-cone 450 150))
 
 (defmethod handle-input ((screen (eql :gameplay-screen)) dt)
   (when (iskeypressed +key-enter+)
@@ -388,6 +416,7 @@ a list of bindings."
     (ball-hit *b* *hit-box*))
   (update *p* dt)
   (update *b* dt)
+  (run-check-hit)
   (run-destroy-dead))
 
 (defun draw-court ()
@@ -409,7 +438,8 @@ a list of bindings."
   (draw-court)
   (run-draw-shadow)
   (run-draw-renderable)
-  (when *hit-box*
+  ;; Debug hit-box
+  #+nil (when *hit-box*
     (destructuring-bind (hx hy hr p) *hit-box*
       (drawcirclelines (floor hx) (floor hy) hr +red+)))
   (draw-heads-up-display))
