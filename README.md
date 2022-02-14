@@ -18,6 +18,13 @@ make build
 
 ## Devlog
 
+### 2022-02-14
+
+Figured out how to project the ball trajectory to 2d perspective and happily
+dropped the 3D perspective.  Introduced the first hitting target - static cones.
+
+![Animated tennis ball hitting cone targets](devlog/tiebreak-8-2d-perspective-and-cones.gif)
+
 ### 2022-02-10
 
 Drop dependency on [cl-raylib][2] because I want to learn more about how `cffi`
