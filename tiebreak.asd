@@ -20,8 +20,7 @@
                #:cffi-libffi
                :beast)
   :serial t
-  :components ((:module "src"
-                :serial t
-                :components ((:file "package")
-                             (:file "raylib")
-                             (:file "main")))))
+  :pathname "src"
+  :components ((:file "package")
+               (:file "raylib")
+               (:file "main")))
