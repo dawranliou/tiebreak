@@ -16,11 +16,12 @@
   :build-pathname "tiebreak"
   :entry-point "tiebreak:main"
 
-  :depends-on (#:cffi
-               #:cffi-libffi
-               :beast)
+  :depends-on (#:sdl2
+               #:sdl2-image
+               #:sdl2-ttf
+               #:sdl2kit
+               #:beast)
   :serial t
   :pathname "src"
   :components ((:file "package")
-               (:file "raylib")
                (:file "main")))

@@ -1,5 +1,4 @@
 (defpackage #:tiebreak
   (:use #:cl)
-  (:local-nicknames (:c :cffi)
-                    (:b :beast))
+  (:local-nicknames (:b :beast))
   (:export #:main))
